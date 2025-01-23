@@ -6,8 +6,8 @@
 
 #include "Lib.hpp"
 
-string HotReloadShader::getFileContent(const std::string & path) {
-	string res;
+std::string HotReloadShader::getFileContent(const std::string & path) {
+	std::string res;
 
 	FILE * f = fopen(path.c_str(), "r");
 	if (!f) return "";
@@ -47,7 +47,7 @@ void HotReloadShader::tick() {
 		mtimeVert = mt.st_mtime;
 		hasOneChanged = true;
 		if (vertSrc.size())
-			cout << "vert read successfully" << endl;
+			std::cout << "vert read successfully" << std::endl;
 	}
 
 	res = stat(fragPath.c_str(), &mt);
@@ -64,13 +64,13 @@ void HotReloadShader::tick() {
 		mtimeFrag = mt.st_mtime;
 		hasOneChanged = true;
 		if (fragSrc.size())
-			cout << "frag read successfully" << endl;
+			std::cout << "frag read successfully" << std::endl;
 	}
 
 	if (hasOneChanged) {
 		bool ok = sh.loadFromMemory(vertSrc.c_str(), fragSrc.c_str());
 		if (ok) {
-			cout << "shader updated" << endl;
+			std::cout << "shader updated" << std::endl;
 			if (onUpdate)
 				onUpdate();
 		}

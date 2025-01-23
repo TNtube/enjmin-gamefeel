@@ -5,31 +5,31 @@
 #include <functional>
 
 
-using namespace std;
+
 class HotReloadShader {
 public:
 
 	bool	inError = false;
 	bool	enableHotReloading = true;
-	string vertPath;
-	string fragPath;
+	std::string vertPath;
+	std::string fragPath;
 
-	string vertSrc;
-	string fragSrc;
+	std::string vertSrc;
+	std::string fragSrc;
 
 	time_t mtimeVert = 0;
 	time_t mtimeFrag = 0;
 	
 	std::function<void(void)> onUpdate;
 
-	HotReloadShader( string vertPath, string fragPath) {
+	HotReloadShader( std::string vertPath, std::string fragPath) {
 		this->vertPath = vertPath;
 		this->fragPath = fragPath;
 		tick();
 	}
 
 	float	time = 0.0;
-	string	getFileContent(const std::string & path);
+	std::string	getFileContent(const std::string & path);
 	void	update(double dt);
 	void	tick();
 

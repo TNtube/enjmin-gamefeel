@@ -1,5 +1,5 @@
 #include "Bloom.hpp"
-using namespace std;
+
 
 //not a professionnal bloom ( go for pyramid ) it is fast though because only two passes with small kernels
 void Bloom::m_gaussian_kernel(float* dest, int size, float radius)
@@ -34,7 +34,7 @@ void Bloom::m_gaussian_kernel(float* dest, int size, float radius)
 	}
 }
 
-void Bloom::getKernelOffsets(float dx, vector<float>& _kernel, vector<sf::Glsl::Vec2>& _offsets, float offsetScale, bool isHoriz) {
+void Bloom::getKernelOffsets(float dx, std::vector<float>& _kernel, std::vector<sf::Glsl::Vec2>& _offsets, float offsetScale, bool isHoriz) {
 	int kernel_size = (int)(dx / 0.65f + 0.5f) * 2 + 1;
 
 	_kernel.clear();
@@ -56,9 +56,9 @@ void Bloom::getKernelOffsets(float dx, vector<float>& _kernel, vector<sf::Glsl::
 
 void Bloom::blur(float dx, sf::Texture* source, sf::Shader* _blurShader, sf::RenderTexture* destX, sf::RenderTexture* destFinal) {
 
-	vector<float> kernelX;
-	vector<float> kernelY;
-	vector<sf::Glsl::Vec2> offsets;
+	std::vector<float> kernelX;
+	std::vector<float> kernelY;
+	std::vector<sf::Glsl::Vec2> offsets;
 	source->setSmooth(true);
 	destX->setSmooth(true);
 	destFinal->setSmooth(true);

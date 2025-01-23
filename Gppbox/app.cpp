@@ -29,7 +29,7 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-using namespace std;
+
 using namespace sf;
 
 static HotReloadShader * bloomShader = nullptr;
@@ -40,7 +40,7 @@ static int curDts = 0;
 
 int main()
 {
-    cout << "Hello World!\n";
+    std::cout << "Hello World!\n";
 	
     //sf::RenderWindow window(sf::VideoMode(1920, 1080,32), "SFML works!");
     //sf::RenderWindow window(sf::VideoMode(800, 600,32), "SFML works!");
@@ -49,13 +49,13 @@ int main()
     Font font;
 
     if (!font.loadFromFile("res/MAIAN.TTF")) {
-        cout << "ERROR NO FONT" << endl;
+        std::cout << "ERROR NO FONT" << std::endl;
         return 1;
     }
 
 	if (!sf::Shader::isAvailable())
 	{
-		cout << "ERROR NO SHADER SYSTEM" << endl;
+		std::cout << "ERROR NO SHADER SYSTEM" << std::endl;
 		return 1;
 	}
 

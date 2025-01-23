@@ -1,7 +1,9 @@
 /Sandbox/.vs
+/Sandbox/.idea
 /Sandbox/x64
 /Sandbox/sfml_test/x64
 
 /Gppbox/.vs
+/Gppbox/.idea
 /Gppbox/x64
 /Gppbox/sfml_test/x64

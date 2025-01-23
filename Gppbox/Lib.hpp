@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Color.hpp>
 
 
-using namespace std;
+
 using namespace std::chrono;
 
 namespace Lib {
