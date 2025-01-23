@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-
 #include "SFML/Graphics.hpp"
 #include "SFML/System.hpp"
 #include "SFML/Window.hpp"
@@ -10,6 +9,8 @@
 
 #include "Particle.hpp"
 #include "ParticleMan.hpp"
+
+#include "Entity.hpp"
 
 using namespace sf;
 
@@ -27,6 +28,9 @@ public:
 	
 	std::vector<sf::Vector2i>		walls;
 	std::vector<sf::RectangleShape> wallSprites;
+	std::vector<Entity>				entities;
+
+	Entity*							player = nullptr;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;

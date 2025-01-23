@@ -41,6 +41,10 @@ Game::Game(sf::RenderWindow * win) {
 	walls.push_back(Vector2i(cols >>2, lastLine - 4));
 	walls.push_back(Vector2i((cols >> 2) + 1, lastLine - 4));
 	cacheWalls();
+
+
+	entities.emplace_back(this, 5, 23);
+	player = &entities.back();
 }
 
 void Game::cacheWalls()
@@ -76,15 +80,16 @@ void Game::pollInput(double dt) {
 	float lateralSpeed = 8.0;
 	float maxSpeed = 40.0;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+		player->dx = -20;
 
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-
+		player->dx = 20;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
-
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && player->onGround) {
+		player->dy = -40;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
@@ -121,6 +126,10 @@ void Game::update(double dt) {
 	if (bgShader) bgShader->update(dt);
 
 	beforeParts.update(dt);
+	for (auto& entity : entities)
+	{
+		entity.update(dt);
+	}
 	afterParts.update(dt);
 }
 
@@ -140,6 +149,9 @@ void Game::update(double dt) {
 
 	for (sf::RectangleShape & r : wallSprites)
 		win.draw(r);
+
+	for (Entity& e : entities)
+		e.draw(win);
 
 	for (sf::RectangleShape& r : rects) 
 		win.draw(r);
@@ -164,6 +176,16 @@ bool Game::isWall(int cx, int cy)
 
 void Game::im()
 {
+	bool edit = false;
+	float xx = player->xx;
+	float yy = player->yy;
+	edit |= ImGui::DragFloat("player xx", &xx, 0.1f);
+	edit |= ImGui::DragFloat("player yy", &yy, 0.1f);
+	if (edit) {
+		player->setCoordinates(xx, yy);
+	}
 
+	ImGui::DragFloat("player dx", &player->dx, 0.1f);
+	ImGui::DragFloat("player dy", &player->dy, 0.1f);
 }
 
