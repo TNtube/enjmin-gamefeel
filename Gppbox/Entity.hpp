@@ -28,6 +28,8 @@ public:
 	void draw(sf::RenderWindow& win) const;
 	void setCoordinates(float x, float y);
 
+	void im();
+
 private:
 	Game* m_pGame;
 };

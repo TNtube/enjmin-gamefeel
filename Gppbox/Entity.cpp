@@ -2,6 +2,7 @@
 #include "Game.hpp"
 
 #include "C.hpp"
+#include "imgui.h"
 
 Entity::Entity(Game* game, int cx, int cy)
 	: sprite(sf::Vector2f(C::GRID_SIZE, C::GRID_SIZE)),
@@ -15,12 +16,30 @@ Entity::Entity(Game* game, int cx, int cy)
 
 void Entity::setCoordinates(float x, float y)
 {
-	xx = x;	
-	yy = y;	
+	xx = x;
+	yy = y;
 	cx = static_cast<int>(xx/C::GRID_SIZE);	
 	cy = static_cast<int>(yy/C::GRID_SIZE);	
 	xr = (xx - cx*C::GRID_SIZE) / C::GRID_SIZE;	
 	yr = (yy - cy*C::GRID_SIZE) / C::GRID_SIZE;
+}
+
+void Entity::im()
+{
+	
+	float x = xx;
+	float y = yy;
+	bool edit = false;
+	edit |= ImGui::DragFloat("x", &x);
+	edit |= ImGui::DragFloat("y", &y);
+
+	
+	if (edit) {
+		setCoordinates(x, y);
+	}
+
+	ImGui::DragFloat("dx", &dx);
+	ImGui::DragFloat("dy", &dy);
 }
 
 void Entity::update(double dt)

@@ -23,12 +23,16 @@ public:
 	HotReloadShader *				bgShader = nullptr;
 
 	sf::Texture						tex;
+	sf::View						gameView;
 
 	bool							closing = false;
 	
-	std::vector<sf::Vector2i>		walls;
+	std::vector<sf::Vector2i>			walls;
 	std::vector<sf::RectangleShape> wallSprites;
 	std::vector<Entity>				entities;
+
+	sf::RectangleShape				transparentWall;
+	sf::Vector2i					cursorGrid;
 
 	Entity*							player = nullptr;
 
@@ -50,4 +54,7 @@ public:
 
 	bool isWall(int cx, int cy);
 	void im();
+
+private:
+	bool m_editMode;
 };

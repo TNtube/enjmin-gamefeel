@@ -9,8 +9,8 @@
 #include "HotReloadShader.hpp"
 
 
-static int cols = 1280 / C::GRID_SIZE;
-static int lastLine = 720 / C::GRID_SIZE - 1;
+static int cols = C::RES_X / C::GRID_SIZE;
+static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win) {
 	this->win = win;
@@ -21,11 +21,11 @@ Game::Game(sf::RenderWindow * win) {
 		printf("ERR : LOAD FAILED\n");
 	}
 	bg.setTexture(&tex);
-	bg.setSize(sf::Vector2f(1280, 720));
+	bg.setSize(sf::Vector2f(C::RES_X, C::RES_Y));
 
 	bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 	
-	for (int i = 0; i < 1280 / C::GRID_SIZE; ++i) 
+	for (int i = 0; i < C::RES_X / C::GRID_SIZE; ++i) 
 		walls.push_back( Vector2i(i, lastLine) );
 
 	walls.push_back(Vector2i(0, lastLine-1));
@@ -43,15 +43,22 @@ Game::Game(sf::RenderWindow * win) {
 	cacheWalls();
 
 
-	entities.emplace_back(this, 5, 23);
+	entities.emplace_back(this, 5, 5);
 	player = &entities.back();
+
+	gameView.setSize(C::RES_X / 4.f, C::RES_Y / 4.f);
+	gameView.setCenter(C::RES_X / 2.f, C::RES_Y / 2.f);
+
+
+	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
+	transparentWall.setFillColor(sf::Color(0x07ff0788));
 }
 
 void Game::cacheWalls()
 {
 	wallSprites.clear();
 	for (Vector2i & w : walls) {
-		sf::RectangleShape rect(Vector2f(16,16));
+		sf::RectangleShape rect(Vector2f(C::GRID_SIZE,C::GRID_SIZE));
 		rect.setPosition((float)w.x * C::GRID_SIZE, (float)w.y * C::GRID_SIZE);
 		rect.setFillColor(sf::Color(0x07ff07ff));
 		wallSprites.push_back(rect);
@@ -79,17 +86,18 @@ void Game::pollInput(double dt) {
 
 	float lateralSpeed = 8.0;
 	float maxSpeed = 40.0;
+	float playerDirX = 0;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-		player->dx = -20;
+		playerDirX += -15;
 
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-		player->dx = 20;
+		playerDirX += 15;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && player->onGround) {
-		player->dy = -40;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
@@ -105,6 +113,35 @@ void Game::pollInput(double dt) {
 		wasPressed = false;
 	}
 
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		if (m_editMode && !isWall(cursorGrid.x, cursorGrid.y))
+		{
+			walls.push_back(cursorGrid);
+			cacheWalls();
+		}
+
+		if (m_editMode && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+		{
+			auto found = walls.end();
+			for (auto it = walls.begin(); it <= walls.end(); ++it)
+			{
+				if (*it == cursorGrid)
+				{
+					found = it;
+					break;
+				}
+			}
+
+			if (found != walls.end())
+			{
+				walls.erase(found);
+				cacheWalls();
+			}
+		}
+	}
+
+	player->dx = playerDirX;
 }
 
 static sf::VertexArray va;
@@ -131,6 +168,14 @@ void Game::update(double dt) {
 		entity.update(dt);
 	}
 	afterParts.update(dt);
+
+	gameView.setCenter({player->xx + C::GRID_SIZE / 2.f, player->yy  + C::GRID_SIZE / 2.f});
+
+	auto cursorPos = sf::Mouse::getPosition(*win);
+	cursorGrid.x = cursorPos.x / C::GRID_SIZE;
+	cursorGrid.y = cursorPos.y / C::GRID_SIZE;
+
+	transparentWall.setPosition({static_cast<float>(cursorGrid.x) * C::GRID_SIZE, static_cast<float>(cursorGrid.y) * C::GRID_SIZE});
 }
 
  void Game::draw(sf::RenderWindow & win) {
@@ -145,6 +190,10 @@ void Game::update(double dt) {
 	//sh->setUniform("time", g_time);
 	win.draw(bg, states);
 
+	auto defaultView = win.getView();
+
+	if (!m_editMode)
+		win.setView(gameView);
 	beforeParts.draw(win);
 
 	for (sf::RectangleShape & r : wallSprites)
@@ -155,13 +204,18 @@ void Game::update(double dt) {
 
 	for (sf::RectangleShape& r : rects) 
 		win.draw(r);
+
+	if (m_editMode)
+		win.draw(transparentWall);
 	
 
 	afterParts.draw(win);
+	win.setView(defaultView);
 }
 
 void Game::onSpacePressed() {
-	
+	if (player->onGround)
+		player->dy = -40;
 }
 
 
@@ -176,16 +230,22 @@ bool Game::isWall(int cx, int cy)
 
 void Game::im()
 {
-	bool edit = false;
-	float xx = player->xx;
-	float yy = player->yy;
-	edit |= ImGui::DragFloat("player xx", &xx, 0.1f);
-	edit |= ImGui::DragFloat("player yy", &yy, 0.1f);
-	if (edit) {
-		player->setCoordinates(xx, yy);
+
+	if (!m_editMode && ImGui::Button("Edit Mode"))
+	{
+		m_editMode = true;
 	}
 
-	ImGui::DragFloat("player dx", &player->dx, 0.1f);
-	ImGui::DragFloat("player dy", &player->dy, 0.1f);
+	if (m_editMode && ImGui::Button("Quit Edit Mode"))
+	{
+		m_editMode = false;
+	}
+	
+	if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Indent();
+		player->im();
+		ImGui::Unindent();
+	}
 }
 
