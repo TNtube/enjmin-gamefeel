@@ -11,6 +11,7 @@
 #include "ParticleMan.hpp"
 
 #include "Entity.hpp"
+#include "SecondOrderDynamics.h"
 
 using namespace sf;
 
@@ -35,6 +36,12 @@ public:
 	sf::Vector2i					cursorGrid;
 
 	Entity*							player = nullptr;
+
+	// camera data
+	float							frequency = 2.0f;
+	float							damping = 1.0f;
+	float							overshoot = 0;
+	SecondOrderDynamics				sod;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;

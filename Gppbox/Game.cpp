@@ -7,12 +7,13 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
+#include "SecondOrderDynamics.h"
 
 
 static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
-Game::Game(sf::RenderWindow * win) {
+Game::Game(sf::RenderWindow * win) : sod(frequency, damping, overshoot, { 0, 0 }) {
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
 
@@ -169,7 +170,9 @@ void Game::update(double dt) {
 	}
 	afterParts.update(dt);
 
-	gameView.setCenter({player->xx + C::GRID_SIZE / 2.f, player->yy  + C::GRID_SIZE / 2.f});
+
+	auto target = sod.Update(dt, {player->xx + C::GRID_SIZE / 2.f, player->yy  + C::GRID_SIZE / 2.f});
+	gameView.setCenter(target);
 
 	auto cursorPos = sf::Mouse::getPosition(*win);
 	cursorGrid.x = cursorPos.x / C::GRID_SIZE;
@@ -230,7 +233,6 @@ bool Game::isWall(int cx, int cy)
 
 void Game::im()
 {
-
 	if (!m_editMode && ImGui::Button("Edit Mode"))
 	{
 		m_editMode = true;
@@ -247,5 +249,32 @@ void Game::im()
 		player->im();
 		ImGui::Unindent();
 	}
+
+	float duration = 1.0f;
+	float timeStep = 0.01f;
+
+	int plots = static_cast<int>(duration / timeStep);
+
+
+	bool edit = false;
+	edit |= ImGui::DragFloat("frequency", &frequency, 0.01f);
+	edit |= ImGui::DragFloat("damping", &damping, 0.01f);
+	edit |= ImGui::DragFloat("overshoot", &overshoot, 0.01f);
+
+	if (edit)
+	{
+		sod.SetParams(frequency, damping, overshoot);
+	}
+
+	SecondOrderDynamics plotSod = SecondOrderDynamics(frequency, damping, overshoot, { 0, 0 });
+
+	auto lambda = [](void* data, int i) -> float
+	{
+		auto sod = static_cast<SecondOrderDynamics*>(data);
+		auto pos = sod->Update(0.01f, {1, 1});
+		return pos.x * 40 + 40;
+	};
+
+	ImGui::PlotLines("SOD",  lambda, &plotSod, plots, 0, nullptr, 0, 100, ImVec2(0, 80));
 }
 
