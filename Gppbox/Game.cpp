@@ -7,13 +7,14 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
-#include "SecondOrderDynamics.h"
 
 
 static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
-Game::Game(sf::RenderWindow * win) : sod(frequency, damping, overshoot, { 0, 0 }) {
+Game::Game(sf::RenderWindow * win)
+	: camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 4.0f, C::RES_Y / 4.0f})
+{
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
 
@@ -47,14 +48,10 @@ Game::Game(sf::RenderWindow * win) : sod(frequency, damping, overshoot, { 0, 0 }
 	entities.emplace_back(this, 5, 5);
 	player = &entities.back();
 
-	gameView.setSize(C::RES_X / 4.0f, C::RES_Y / 4.0f);
-	gameView.setCenter(C::RES_X / 2.f, C::RES_Y / 2.f);
-
+	camera.setPlayer(player);
 
 	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
 	transparentWall.setFillColor(sf::Color(0x07ff0788));
-
-	yLevel = player->yy;
 }
 
 void Game::cacheWalls()
@@ -172,33 +169,7 @@ void Game::update(double dt) {
 	}
 	afterParts.update(dt);
 
-	auto playerCenter = Vector2f(player->xx + C::GRID_SIZE / 2.f, player->yy + C::GRID_SIZE / 2.f);
-
-	float lowerBound = yLevel + (gameView.getSize().y / 5.f);
-	float upperBound = yLevel - (gameView.getSize().y / 3.f);
-
-
-	if (playerCenter.y < upperBound)
-	{
-		yLevel = playerCenter.y + (gameView.getSize().y / 3.f);
-	}
-	if (playerCenter.y > lowerBound)
-	{
-		yLevel = playerCenter.y - (gameView.getSize().y / 5.f);
-	}
-
-	if (player->onGround)
-	{
-		yLevel = playerCenter.y - (gameView.getSize().y / 5.f);
-	}
-
-	auto target = Vector2f {
-		playerCenter.x + (gameView.getSize().x / 4.0f * player->lastXDir),
-		yLevel
-	};
-
-	auto cameraPosition = sod.Update(dt, target);
-	gameView.setCenter(cameraPosition);
+	camera.update(dt);
 
 	auto cursorPos = sf::Mouse::getPosition(*win);
 	cursorGrid.x = cursorPos.x / C::GRID_SIZE;
@@ -222,7 +193,7 @@ void Game::update(double dt) {
 	auto defaultView = win.getView();
 
 	if (!m_editMode)
-		win.setView(gameView);
+		camera.setActive(win);
 	beforeParts.draw(win);
 
 	for (sf::RectangleShape & r : wallSprites)
@@ -275,32 +246,12 @@ void Game::im()
 		player->im();
 		ImGui::Unindent();
 	}
-
-	float duration = 1.0f;
-	float timeStep = 0.01f;
-
-	int plots = static_cast<int>(duration / timeStep);
-
-
-	bool edit = false;
-	edit |= ImGui::DragFloat("frequency", &frequency, 0.01f);
-	edit |= ImGui::DragFloat("damping", &damping, 0.01f);
-	edit |= ImGui::DragFloat("overshoot", &overshoot, 0.01f);
-
-	if (edit)
+	
+	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		sod.SetParams(frequency, damping, overshoot);
+		ImGui::Indent();
+		camera.im();
+		ImGui::Unindent();
 	}
-
-	SecondOrderDynamics plotSod = SecondOrderDynamics(frequency, damping, overshoot, { 0, 0 });
-
-	auto lambda = [](void* data, int i) -> float
-	{
-		auto sod = static_cast<SecondOrderDynamics*>(data);
-		auto pos = sod->Update(0.01f, {1, 1});
-		return pos.x * 40 + 40;
-	};
-
-	ImGui::PlotLines("SOD",  lambda, &plotSod, plots, 0, nullptr, 0, 100, ImVec2(0, 80));
 }
 

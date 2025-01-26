@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+
+#include "Camera.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System.hpp"
 #include "SFML/Window.hpp"
@@ -11,7 +13,7 @@
 #include "ParticleMan.hpp"
 
 #include "Entity.hpp"
-#include "SecondOrderDynamics.h"
+#include "SecondOrderDynamics.hpp"
 
 using namespace sf;
 
@@ -24,11 +26,10 @@ public:
 	HotReloadShader *				bgShader = nullptr;
 
 	sf::Texture						tex;
-	sf::View						gameView;
 
 	bool							closing = false;
 	
-	std::vector<sf::Vector2i>			walls;
+	std::vector<sf::Vector2i>		walls;
 	std::vector<sf::RectangleShape> wallSprites;
 	std::vector<Entity>				entities;
 
@@ -38,11 +39,7 @@ public:
 	Entity*							player = nullptr;
 
 	// camera data
-	float							frequency = 3.5f;
-	float							damping = 1.0f;
-	float							overshoot = 0;
-	float							yLevel = 0;
-	SecondOrderDynamics				sod;
+	Camera							camera;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;
