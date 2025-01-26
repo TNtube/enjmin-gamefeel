@@ -6,7 +6,7 @@
 #include "imgui.h"
 
 Camera::Camera(sf::Vector2f center, sf::Vector2f size)
-	: m_view(center, size), m_sod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0})
+	: m_view(center, size), m_yLevel(center.y), m_sod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0})
 {
 }
 
@@ -14,7 +14,7 @@ void Camera::update(double dt)
 {
 	if (m_player == nullptr)
 	{
-		std::cerr << "Camera has no player" << std::endl;
+		std::cerr << "Camera has no player\n";
 		return;
 	}
 	auto playerCenter = sf::Vector2f(m_player->xx + C::GRID_SIZE / 2.f, m_player->yy + C::GRID_SIZE / 2.f);
