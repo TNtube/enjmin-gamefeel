@@ -68,6 +68,9 @@ void Entity::update(double dt)
 
 
 	// x movement
+
+	lastXDir = dx > 0 ? 1 : (dx < 0 ? -1 : lastXDir);
+
 	xr += dx * dt;
 	dx *= 0.96f;
 	if (m_pGame->isWall(cx+1,cy) && xr>=0.0f) {

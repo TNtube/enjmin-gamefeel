@@ -38,9 +38,10 @@ public:
 	Entity*							player = nullptr;
 
 	// camera data
-	float							frequency = 2.0f;
+	float							frequency = 3.5f;
 	float							damping = 1.0f;
 	float							overshoot = 0;
+	float							yLevel = 0;
 	SecondOrderDynamics				sod;
 
 	ParticleMan beforeParts;

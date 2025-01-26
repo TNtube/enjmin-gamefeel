@@ -20,6 +20,8 @@ public:
 	// Movement
 	float dx, dy;
 
+	float lastXDir = 1.f;
+
 	bool onGround = false;
 
 	Entity(Game* game, int x, int y);

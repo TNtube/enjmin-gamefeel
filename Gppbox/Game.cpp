@@ -47,12 +47,14 @@ Game::Game(sf::RenderWindow * win) : sod(frequency, damping, overshoot, { 0, 0 }
 	entities.emplace_back(this, 5, 5);
 	player = &entities.back();
 
-	gameView.setSize(C::RES_X / 4.f, C::RES_Y / 4.f);
+	gameView.setSize(C::RES_X / 4.0f, C::RES_Y / 4.0f);
 	gameView.setCenter(C::RES_X / 2.f, C::RES_Y / 2.f);
 
 
 	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
 	transparentWall.setFillColor(sf::Color(0x07ff0788));
+
+	yLevel = player->yy;
 }
 
 void Game::cacheWalls()
@@ -170,9 +172,33 @@ void Game::update(double dt) {
 	}
 	afterParts.update(dt);
 
+	auto playerCenter = Vector2f(player->xx + C::GRID_SIZE / 2.f, player->yy + C::GRID_SIZE / 2.f);
 
-	auto target = sod.Update(dt, {player->xx + C::GRID_SIZE / 2.f, player->yy  + C::GRID_SIZE / 2.f});
-	gameView.setCenter(target);
+	float lowerBound = yLevel + (gameView.getSize().y / 5.f);
+	float upperBound = yLevel - (gameView.getSize().y / 3.f);
+
+
+	if (playerCenter.y < upperBound)
+	{
+		yLevel = playerCenter.y + (gameView.getSize().y / 3.f);
+	}
+	if (playerCenter.y > lowerBound)
+	{
+		yLevel = playerCenter.y - (gameView.getSize().y / 5.f);
+	}
+
+	if (player->onGround)
+	{
+		yLevel = playerCenter.y - (gameView.getSize().y / 5.f);
+	}
+
+	auto target = Vector2f {
+		playerCenter.x + (gameView.getSize().x / 4.0f * player->lastXDir),
+		yLevel
+	};
+
+	auto cameraPosition = sod.Update(dt, target);
+	gameView.setCenter(cameraPosition);
 
 	auto cursorPos = sf::Mouse::getPosition(*win);
 	cursorGrid.x = cursorPos.x / C::GRID_SIZE;
