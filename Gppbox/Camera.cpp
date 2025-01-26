@@ -68,13 +68,13 @@ void Camera::im()
 		m_sod.SetParams(m_frequency, m_damping, m_overshoot);
 	}
 
-	auto plotSod = SecondOrderDynamicsF(m_frequency, m_damping, m_overshoot, 0);
+	auto plotSod = SecondOrderDynamics2f(m_frequency, m_damping, m_overshoot, {0, 0});
 
 	auto lambda = [](void* data, int i) -> float
 	{
-		auto sod = static_cast<SecondOrderDynamicsF*>(data);
-		const auto pos = sod->Update(0.01f, 1);
-		return pos * 40 + 40;
+		auto sod = static_cast<SecondOrderDynamics2f*>(data);
+		const auto pos = sod->Update(0.01f, {1, 1});
+		return pos.x * 40 + 40;
 	};
 
 	ImGui::PlotLines("SOD",  lambda, &plotSod, plots, 0, nullptr, 0, 100, ImVec2(0, 80));

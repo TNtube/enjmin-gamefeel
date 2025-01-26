@@ -25,7 +25,7 @@ private:
 	sf::View m_view;
 	Entity* m_player = nullptr;
 
-	float m_frequency = 3.5f;
+	float m_frequency = 1.5f;
 	float m_damping = 1.0f;
 	float m_overshoot = 0;
 	float m_yLevel = 0;
