@@ -3,16 +3,17 @@
 
 #include "C.hpp"
 #include "imgui.h"
+#include "PlayerController.hpp"
 
 Entity::Entity(Game* game, int cx, int cy)
 	: sprite(sf::Vector2f(C::GRID_SIZE, C::GRID_SIZE)),
 	  cx(cx), cy(cy), xr(0), yr(0),
-	  xx(0), yy(0), dx(0), dy(0),
-	  m_pGame(game)
+	  xx(0), yy(0), dx(0), dy(0)
 {
 	sprite.setPosition(xx, yy);
 	sprite.setFillColor(sf::Color(0xff0707ff));
-	
+
+	m_pController = std::make_unique<PlayerController>(game, this);
 }
 
 void Entity::setCoordinates(float x, float y)
@@ -45,50 +46,7 @@ void Entity::im()
 
 void Entity::update(double dt)
 {
-	// y movement
-	yr += dy * dt;
-
-
-	// roof check, only reset direction
-	if ((m_pGame->world.isWall(cx ,cy-1) || (xr > 0 && m_pGame->world.isWall(cx+1 ,cy-1))) && yr < 0.0f) {
-		dy = 0;
-	}
-	// ground check, reset both direction and position
-	if ((m_pGame->world.isWall(cx,cy+1) || (xr > 0 && m_pGame->world.isWall(cx+1 ,cy+1))) && yr>=0.0f) {
-		dy = 0;
-		yr = 0.0f;
-		onGround = true;
-	} else
-	{
-		onGround = false;
-	}
-	dy += 144.0f * dt;
-
-	while( yr>1 ) { cy++; yr--;}
-	while( yr<0 ) {	cy--; yr++;}
-
-
-	// x movement
-
-	lastXDir = dx > 0 ? 1 : (dx < 0 ? -1 : lastXDir);
-
-	xr += dx * dt;
-	dx *= 0.96f;
-	if (m_pGame->world.isWall(cx+1,cy) && xr>=0.0f) {
-		xr = 0;
-		dx = 0;
-	}
-	if (m_pGame->world.isWall(cx-1,cy) && xr<=0.0f) {
-		xr = 0.0f;
-		dx = 0;
-	}
-
-	while( xr>1 ) {	xr --;	cx ++;}
-	while( xr<0 ) {	xr ++;	cx --;}
-
-	xx =(cx+xr) * C::GRID_SIZE;
-	yy =(cy+yr) * C::GRID_SIZE;
-	sprite.setPosition(xx, yy);
+	m_pController->update(dt);
 }
 
 void Entity::draw(sf::RenderWindow& win) const

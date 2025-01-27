@@ -2,6 +2,8 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include "EntityController.hpp"
+
 class Game;
 
 class Entity
@@ -38,5 +40,5 @@ public:
 	void im();
 
 private:
-	Game* m_pGame;
+	std::unique_ptr<EntityController> m_pController;
 };
