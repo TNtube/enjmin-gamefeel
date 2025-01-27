@@ -14,6 +14,7 @@
 
 #include "Entity.hpp"
 #include "SecondOrderDynamics.hpp"
+#include "World.hpp"
 
 using namespace sf;
 
@@ -28,9 +29,8 @@ public:
 	sf::Texture						tex;
 
 	bool							closing = false;
-	
-	std::vector<sf::Vector2i>		walls;
-	std::vector<sf::RectangleShape> wallSprites;
+
+	World							world;
 	std::vector<Entity>				entities;
 
 	sf::RectangleShape				transparentWall;
@@ -46,8 +46,6 @@ public:
 
 	Game(sf::RenderWindow * win);
 
-	void cacheWalls();
-
 	void processInput(sf::Event ev);
 	bool wasPressed = false;
 	void pollInput(double dt);
@@ -57,7 +55,6 @@ public:
 
 	void draw(sf::RenderWindow& win);
 
-	bool isWall(int cx, int cy);
 	void im();
 
 private:

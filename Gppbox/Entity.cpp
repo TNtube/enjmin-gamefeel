@@ -12,6 +12,7 @@ Entity::Entity(Game* game, int cx, int cy)
 {
 	sprite.setPosition(xx, yy);
 	sprite.setFillColor(sf::Color(0xff0707ff));
+	
 }
 
 void Entity::setCoordinates(float x, float y)
@@ -49,11 +50,11 @@ void Entity::update(double dt)
 
 
 	// roof check, only reset direction
-	if ((m_pGame->isWall(cx ,cy-1) || (xr > 0 && m_pGame->isWall(cx+1 ,cy-1))) && yr < 0.0f) {
+	if ((m_pGame->world.isWall(cx ,cy-1) || (xr > 0 && m_pGame->world.isWall(cx+1 ,cy-1))) && yr < 0.0f) {
 		dy = 0;
 	}
 	// ground check, reset both direction and position
-	if ((m_pGame->isWall(cx,cy+1) || (xr > 0 && m_pGame->isWall(cx+1 ,cy+1))) && yr>=0.0f) {
+	if ((m_pGame->world.isWall(cx,cy+1) || (xr > 0 && m_pGame->world.isWall(cx+1 ,cy+1))) && yr>=0.0f) {
 		dy = 0;
 		yr = 0.0f;
 		onGround = true;
@@ -73,11 +74,11 @@ void Entity::update(double dt)
 
 	xr += dx * dt;
 	dx *= 0.96f;
-	if (m_pGame->isWall(cx+1,cy) && xr>=0.0f) {
+	if (m_pGame->world.isWall(cx+1,cy) && xr>=0.0f) {
 		xr = 0;
 		dx = 0;
 	}
-	if (m_pGame->isWall(cx-1,cy) && xr<=0.0f) {
+	if (m_pGame->world.isWall(cx-1,cy) && xr<=0.0f) {
 		xr = 0.0f;
 		dx = 0;
 	}

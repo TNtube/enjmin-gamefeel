@@ -28,21 +28,21 @@ Game::Game(sf::RenderWindow * win)
 	bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 	
 	for (int i = 0; i < C::RES_X / C::GRID_SIZE; ++i) 
-		walls.push_back( Vector2i(i, lastLine) );
+		world.addWall(i, lastLine);
 
-	walls.push_back(Vector2i(0, lastLine-1));
-	walls.push_back(Vector2i(0, lastLine-2));
-	walls.push_back(Vector2i(0, lastLine-3));
+	world.addWall(0, lastLine-1);
+	world.addWall(0, lastLine-2);
+	world.addWall(0, lastLine-3);
 
-	walls.push_back(Vector2i(cols-1, lastLine - 1));
-	walls.push_back(Vector2i(cols-1, lastLine - 2));
-	walls.push_back(Vector2i(cols-1, lastLine - 3));
+	world.addWall(cols-1, lastLine - 1);
+	world.addWall(cols-1, lastLine - 2);
+	world.addWall(cols-1, lastLine - 3);
 
-	walls.push_back(Vector2i(cols >>2, lastLine - 2));
-	walls.push_back(Vector2i(cols >>2, lastLine - 3));
-	walls.push_back(Vector2i(cols >>2, lastLine - 4));
-	walls.push_back(Vector2i((cols >> 2) + 1, lastLine - 4));
-	cacheWalls();
+	world.addWall(cols >>2, lastLine - 2);
+	world.addWall(cols >>2, lastLine - 3);
+	world.addWall(cols >>2, lastLine - 4);
+	world.addWall((cols >> 2) + 1, lastLine - 4);
+	world.cacheWalls();
 
 
 	entities.emplace_back(this, 5, 5);
@@ -52,17 +52,6 @@ Game::Game(sf::RenderWindow * win)
 
 	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
 	transparentWall.setFillColor(sf::Color(0x07ff0788));
-}
-
-void Game::cacheWalls()
-{
-	wallSprites.clear();
-	for (Vector2i & w : walls) {
-		sf::RectangleShape rect(Vector2f(C::GRID_SIZE,C::GRID_SIZE));
-		rect.setPosition((float)w.x * C::GRID_SIZE, (float)w.y * C::GRID_SIZE);
-		rect.setFillColor(sf::Color(0x07ff07ff));
-		wallSprites.push_back(rect);
-	}
 }
 
 void Game::processInput(sf::Event ev) {
@@ -113,31 +102,21 @@ void Game::pollInput(double dt) {
 		wasPressed = false;
 	}
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	ImVec2 rectMin = ImGui::GetWindowPos();
+	rectMin.y -= 100;
+	ImVec2 rectSize = ImGui::GetWindowSize();
+	ImVec2 rectMax = ImVec2{rectMin.x + rectSize.x, rectMin.y + rectSize.y};
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && ! ImGui::IsWindowHovered())
 	{
-		if (m_editMode && !isWall(cursorGrid.x, cursorGrid.y))
+		if (m_editMode && world.addWall(cursorGrid.x, cursorGrid.y))
 		{
-			walls.push_back(cursorGrid);
-			cacheWalls();
+			world.cacheWalls();
 		}
 
 		if (m_editMode && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		{
-			auto found = walls.end();
-			for (auto it = walls.begin(); it <= walls.end(); ++it)
-			{
-				if (*it == cursorGrid)
-				{
-					found = it;
-					break;
-				}
-			}
-
-			if (found != walls.end())
-			{
-				walls.erase(found);
-				cacheWalls();
-			}
+			if (world.removeWall(cursorGrid.x, cursorGrid.y)) world.cacheWalls();
 		}
 	}
 
@@ -163,10 +142,10 @@ void Game::update(double dt) {
 	if (bgShader) bgShader->update(dt);
 
 	beforeParts.update(dt);
-	for (auto& entity : entities)
-	{
-		entity.update(dt);
-	}
+	if (!m_editMode)
+		for (auto& entity : entities)
+			entity.update(dt);
+
 	afterParts.update(dt);
 
 	camera.update(dt);
@@ -196,8 +175,7 @@ void Game::update(double dt) {
 		camera.setActive(win);
 	beforeParts.draw(win);
 
-	for (sf::RectangleShape & r : wallSprites)
-		win.draw(r);
+	world.draw(win);
 
 	for (Entity& e : entities)
 		e.draw(win);
@@ -218,16 +196,6 @@ void Game::onSpacePressed() {
 		player->dy = -40;
 }
 
-
-bool Game::isWall(int cx, int cy)
-{
-	for (Vector2i & w : walls) {
-		if (w.x == cx && w.y == cy)
-			return true;
-	}
-	return false;
-}
-
 void Game::im()
 {
 	if (!m_editMode && ImGui::Button("Edit Mode"))
@@ -235,9 +203,12 @@ void Game::im()
 		m_editMode = true;
 	}
 
-	if (m_editMode && ImGui::Button("Quit Edit Mode"))
+	if (m_editMode)
 	{
-		m_editMode = false;
+		if (ImGui::Button("Quit Edit Mode")) m_editMode = false;
+
+		if (ImGui::Button("Load data")) world.loadFile("world.sav");
+		if (ImGui::Button("Save data")) world.saveFile("world.sav");
 	}
 	
 	if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))

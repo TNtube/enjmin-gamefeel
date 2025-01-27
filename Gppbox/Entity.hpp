@@ -7,6 +7,11 @@ class Game;
 class Entity
 {
 public:
+	enum class EntityType : uint8_t
+	{
+		Player,
+		Monster
+	};
 
 	sf::RectangleShape sprite;
 	
