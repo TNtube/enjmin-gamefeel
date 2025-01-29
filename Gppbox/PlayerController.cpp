@@ -20,11 +20,8 @@ void PlayerController::update(double dt)
 	m_Entity->xr += m_Entity->dx * dt;
 	m_Entity->dx *= 0.96f;
 
-	while (true)
+	while (m_Entity->xr > 0)
 	{
-		if (m_Entity->xr<=0) // xr negative ? we should'nt event be here
-			break;
-		
 		if (isWallCollision(m_Entity->cx+1, m_Entity->cy, true)) {
 			m_Entity->xr = 0;
 			m_Entity->dx = 0;
@@ -33,10 +30,8 @@ void PlayerController::update(double dt)
 		m_Entity->xr--; m_Entity->cx++;
 	}
 
-	while (true)
+	while (m_Entity->xr < 0.0f)
 	{
-		if (m_Entity->xr >= 0.0f) // same logic as above
-			break;
 		if (isWallCollision(m_Entity->cx-1, m_Entity->cy, true)) {
 			m_Entity->xr = 0.0f;
 			m_Entity->dx = 0;
@@ -48,11 +43,8 @@ void PlayerController::update(double dt)
 	// y movement
 	m_Entity->yr += m_Entity->dy * dt;
 
-	while(true)
+	while(m_Entity->yr > 0.0f)
 	{
-		if (m_Entity->yr <= 0.0f) // we are going down
-			break;
-
 		// ground check, reset both direction and position
 		if (isWallCollision(m_Entity->cx, m_Entity->cy+1, false)) {
 			m_Entity->dy = 0;
@@ -64,10 +56,8 @@ void PlayerController::update(double dt)
 		m_Entity->cy++; m_Entity->yr--;
 	}
 
-	while(true)
+	while(m_Entity->yr < 0.0f)
 	{
-		if (m_Entity->yr >= 0.0f) // we are going up
-			break;
 		// roof check, only reset direction
 		if (isWallCollision(m_Entity->cx, m_Entity->cy-1, false)) {
 			m_Entity->dy = 0;
