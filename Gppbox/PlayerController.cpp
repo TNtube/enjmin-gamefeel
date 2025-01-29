@@ -20,8 +20,11 @@ void PlayerController::update(double dt)
 	m_Entity->xr += m_Entity->dx * dt;
 	m_Entity->dx *= 0.96f;
 
-	while (m_Entity->xr>1)
+	while (true)
 	{
+		if (m_Entity->xr<=0) // xr negative ? we should'nt event be here
+			break;
+		
 		if (isWallCollision(m_Entity->cx+1, m_Entity->cy, true)) {
 			m_Entity->xr = 0;
 			m_Entity->dx = 0;
@@ -29,13 +32,11 @@ void PlayerController::update(double dt)
 		}
 		m_Entity->xr--; m_Entity->cx++;
 	}
-	if (m_Entity->xr>=0.0f && isWallCollision(m_Entity->cx+1, m_Entity->cy, true)) {
-		m_Entity->xr = 0;
-		m_Entity->dx = 0;
-	}
 
-	while (m_Entity->xr<0)
+	while (true)
 	{
+		if (m_Entity->xr >= 0.0f) // same logic as above
+			break;
 		if (isWallCollision(m_Entity->cx-1, m_Entity->cy, true)) {
 			m_Entity->xr = 0.0f;
 			m_Entity->dx = 0;
@@ -43,16 +44,15 @@ void PlayerController::update(double dt)
 		}
 		m_Entity->xr++; m_Entity->cx--;
 	}
-	if (m_Entity->xr <= 0.0f && isWallCollision(m_Entity->cx-1, m_Entity->cy, true)) {
-		m_Entity->xr = 0.0f;
-		m_Entity->dx = 0;
-	}
 
 	// y movement
 	m_Entity->yr += m_Entity->dy * dt;
 
-	while( m_Entity->yr>1 )
+	while(true)
 	{
+		if (m_Entity->yr <= 0.0f) // we are going down
+			break;
+
 		// ground check, reset both direction and position
 		if (isWallCollision(m_Entity->cx, m_Entity->cy+1, false)) {
 			m_Entity->dy = 0;
@@ -63,15 +63,11 @@ void PlayerController::update(double dt)
 		m_Entity->onGround = false;
 		m_Entity->cy++; m_Entity->yr--;
 	}
-	if (m_Entity->yr>=0.0f && isWallCollision(m_Entity->cx, m_Entity->cy+1, false)) {
-		m_Entity->dy = 0;
-		m_Entity->yr = 0.0f;
-		m_Entity->onGround = true;
-	} else
-		m_Entity->onGround = false;
 
-	while( m_Entity->yr<0 )
+	while(true)
 	{
+		if (m_Entity->yr >= 0.0f) // we are going up
+			break;
 		// roof check, only reset direction
 		if (isWallCollision(m_Entity->cx, m_Entity->cy-1, false)) {
 			m_Entity->dy = 0;
@@ -79,10 +75,6 @@ void PlayerController::update(double dt)
 			break;
 		}
 		m_Entity->cy--; m_Entity->yr++;
-	}
-	if (m_Entity->yr < 0.0f && isWallCollision(m_Entity->cx, m_Entity->cy-1, false)) {
-		m_Entity->dy = 0;
-		m_Entity->yr = 0.0f;
 	}
 
 	m_Entity->dy += 144.0f * dt;
