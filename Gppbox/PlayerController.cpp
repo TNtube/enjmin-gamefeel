@@ -1,4 +1,7 @@
 #include "PlayerController.hpp"
+
+#include <iostream>
+
 #include "Entity.hpp"
 #include "Game.hpp"
 
@@ -17,7 +20,7 @@ void PlayerController::update(double dt)
 	m_Entity->xr += m_Entity->dx * dt;
 	m_Entity->dx *= 0.96f;
 
-	while (m_Entity->xr>=0.0f)
+	while (m_Entity->xr>1)
 	{
 		if (isWallCollision(m_Entity->cx+1, m_Entity->cy, true)) {
 			m_Entity->xr = 0;
