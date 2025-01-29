@@ -6,7 +6,10 @@
 #include "imgui.h"
 
 Camera::Camera(sf::Vector2f center, sf::Vector2f size)
-	: m_view(center, size), m_yLevel(center.y), m_sod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0})
+	:	m_view(center, size), m_yLevel(center.y),
+		m_followSod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0}),
+		m_rng(m_rngDev()), m_rngDist(-1, 1), m_throttler(0.016f),
+		m_shakeSod(8, 1, 0, {0, 0}) // magic numbers for shake
 {
 }
 
@@ -42,8 +45,40 @@ void Camera::update(double dt)
 		m_yLevel
 	};
 
-	auto cameraPosition = m_sod.Update(dt, target);
+	auto cameraPosition = m_followSod.Update(dt, target);
+
+	// shake
+	float radius = 0;
+	for (auto it = m_shakes.begin(); it != m_shakes.end();)
+	{
+		it->duration -= dt;
+		if (it->duration <= 0)
+			it = m_shakes.erase(it);
+		else
+		{
+			radius += it->intensity;
+			++it;
+		}
+	}
+	
+	float shakeX = 0;
+	float shakeY = 0;
+	if (m_throttler.shouldExecute(dt) && radius > 0)
+	{
+		shakeX = m_rngDist(m_rng) * radius;
+		shakeY = m_rngDist(m_rng) * radius;
+	}
+
+	// run most of the time for nothing, but we need to keep the internal state of the SOD up-to-date
+	// multiple sods are used to give different feels depending on the situation
+	cameraPosition = m_shakeSod.Update(dt, cameraPosition + sf::Vector2f{shakeX, shakeY});
+
 	m_view.setCenter(cameraPosition);
+}
+
+void Camera::addShake(float duration, float intensity)
+{
+	m_shakes.push_back({duration, intensity});
 }
 
 void Camera::setActive(sf::RenderWindow& win) const
@@ -65,7 +100,7 @@ void Camera::im()
 
 	if (edit)
 	{
-		m_sod.SetParams(m_frequency, m_damping, m_overshoot);
+		m_followSod.SetParams(m_frequency, m_damping, m_overshoot);
 	}
 
 	auto plotSod = SecondOrderDynamics2f(m_frequency, m_damping, m_overshoot, {0, 0});

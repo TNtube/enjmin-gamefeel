@@ -177,6 +177,7 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="sys.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -200,6 +201,7 @@
     <ClInclude Include="PlayerController.hpp" />
     <ClInclude Include="SecondOrderDynamics.hpp" />
     <ClInclude Include="sys.hpp" />
+    <ClInclude Include="Throttle.h" />
     <ClInclude Include="World.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
