@@ -33,7 +33,7 @@ public:
 
 	Entity(Game* game, int x, int y);
 
-	void update(double dt);
+	void update(double dt) const;
 	void draw(sf::RenderWindow& win) const;
 	void setCoordinates(float x, float y);
 

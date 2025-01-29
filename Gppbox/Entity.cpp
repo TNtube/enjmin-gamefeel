@@ -44,7 +44,7 @@ void Entity::im()
 	ImGui::DragFloat("dy", &dy);
 }
 
-void Entity::update(double dt)
+void Entity::update(double dt) const
 {
 	m_pController->update(dt);
 }

@@ -167,6 +167,7 @@
     <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Entity.cpp"/>
+    <ClCompile Include="EntityController.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HotReloadShader.cpp" />
     <ClCompile Include="Lib.cpp" />
@@ -176,7 +177,6 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="sys.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
