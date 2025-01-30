@@ -44,9 +44,12 @@ Game::Game(sf::RenderWindow * win)
 	world.addWall((cols >> 2) + 1, lastLine - 4);
 	world.cacheWalls();
 
+	entities.reserve(2);
 
-	entities.emplace_back(this, 5, 5);
+	entities.emplace_back(this, 5, 5, Entity::Type::Player);
 	player = &entities.back();
+
+	entities.emplace_back(this, 20, 5, Entity::Type::Enemy);
 
 	camera.setPlayer(player);
 

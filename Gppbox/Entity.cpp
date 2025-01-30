@@ -2,18 +2,28 @@
 #include "Game.hpp"
 
 #include "C.hpp"
+#include "EnemyController.hpp"
 #include "imgui.h"
 #include "PlayerController.hpp"
 
-Entity::Entity(Game* game, int cx, int cy)
+Entity::Entity(Game* game, int cx, int cy, Type type)
 	: sprite(sf::Vector2f(C::GRID_SIZE, C::GRID_SIZE)),
 	  cx(cx), cy(cy), xr(0), yr(0),
-	  xx(0), yy(0), dx(0), dy(0)
+	  xx(0), yy(0), dx(0), dy(0), m_type(type)
 {
 	sprite.setPosition(xx, yy);
-	sprite.setFillColor(sf::Color(0xff0707ff));
 
-	m_pController = std::make_unique<PlayerController>(game, this);
+	switch (m_type)
+	{
+	case Type::Player:
+		m_pController = std::make_unique<PlayerController>(game, this);
+		sprite.setFillColor(sf::Color(0xff0707ff));
+		break;
+	case Type::Enemy:
+		m_pController = std::make_unique<EnemyController>(game, this);
+		sprite.setFillColor(sf::Color(0x0707ffff));
+		break;
+	}
 }
 
 void Entity::setCoordinates(float x, float y)

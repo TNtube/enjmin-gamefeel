@@ -9,10 +9,10 @@ class Game;
 class Entity
 {
 public:
-	enum class EntityType : uint8_t
+	enum class Type : uint8_t
 	{
 		Player,
-		Monster
+		Enemy
 	};
 
 	sf::RectangleShape sprite;
@@ -31,7 +31,7 @@ public:
 
 	bool onGround = false;
 
-	Entity(Game* game, int x, int y);
+	Entity(Game* game, int x, int y, Type type);
 
 	void update(double dt) const;
 	void draw(sf::RenderWindow& win) const;
@@ -40,5 +40,6 @@ public:
 	void im();
 
 private:
+	Type m_type;
 	std::unique_ptr<EntityController> m_pController;
 };
