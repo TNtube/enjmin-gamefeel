@@ -1,7 +1,15 @@
 ﻿#include "PlayerController.hpp"
 
+#include <iostream>
+
 #include "Entity.hpp"
 #include "Game.hpp"
+
+PlayerController::PlayerController(Game* game, Entity* entity)
+	: EntityController(game, entity), m_fireThrottler(0.3f) // magic fire rate number
+{
+	
+}
 
 void PlayerController::update(double dt)
 {
@@ -14,4 +22,10 @@ void PlayerController::update(double dt)
 	}
 
 	m_lastFrameOnGround = m_Entity->onGround;
+}
+
+void PlayerController::shoot(double dt)
+{
+	if (m_fireThrottler.shouldExecute(dt))
+		std::cout << "shooting\n";
 }

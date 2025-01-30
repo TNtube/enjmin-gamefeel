@@ -7,13 +7,14 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
+#include "PlayerController.hpp"
 
 
 static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win)
-	: camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 4.0f, C::RES_Y / 4.0f})
+	: camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f})
 {
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
@@ -92,7 +93,8 @@ void Game::pollInput(double dt) {
 
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) {
+		player->getController<PlayerController>()->shoot(dt);
 
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {

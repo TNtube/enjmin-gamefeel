@@ -37,6 +37,9 @@ public:
 	void draw(sf::RenderWindow& win) const;
 	void setCoordinates(float x, float y);
 
+	template <typename T>
+	T* getController() { return static_cast<T*>(m_pController.get()); }
+
 	void im();
 
 private:
