@@ -6,7 +6,7 @@
 #include "Game.hpp"
 
 PlayerController::PlayerController(Game* game, Entity* entity)
-	: EntityController(game, entity), m_fireThrottler(0.3f) // magic fire rate number
+	: EntityController(game, entity), m_fireThrottler(0.1f) // magic fire rate number
 {
 	
 }

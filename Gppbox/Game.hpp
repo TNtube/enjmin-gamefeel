@@ -31,12 +31,11 @@ public:
 	bool							closing = false;
 
 	World							world;
-	std::vector<Entity>				entities;
 
 	sf::RectangleShape				transparentWall;
 	sf::Vector2i					cursorGrid;
 
-	Entity*							player = nullptr;
+	Entity							player;
 
 	// camera data
 	Camera							camera;
@@ -59,4 +58,5 @@ public:
 
 private:
 	bool m_editMode;
+	int m_selectedElement;
 };

@@ -31,6 +31,8 @@ public:
 
 	bool onGround = false;
 
+	float pv = 1;
+
 	Entity(Game* game, int x, int y, Type type);
 
 	void update(double dt) const;

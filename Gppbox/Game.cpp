@@ -14,7 +14,9 @@ static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win)
-	: camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f})
+	:	player(this, 5, 5, Entity::Type::Player),
+		camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f}),
+		m_editMode(false), m_selectedElement(0)
 {
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
@@ -45,14 +47,7 @@ Game::Game(sf::RenderWindow * win)
 	world.addWall((cols >> 2) + 1, lastLine - 4);
 	world.cacheWalls();
 
-	entities.reserve(2);
-
-	entities.emplace_back(this, 5, 5, Entity::Type::Player);
-	player = &entities.back();
-
-	entities.emplace_back(this, 20, 5, Entity::Type::Enemy);
-
-	camera.setPlayer(player);
+	camera.setPlayer(&player);
 
 	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
 	transparentWall.setFillColor(sf::Color(0x07ff0788));
@@ -94,7 +89,7 @@ void Game::pollInput(double dt) {
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) {
-		player->getController<PlayerController>()->shoot(dt);
+		player.getController<PlayerController>()->shoot(dt);
 
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
@@ -107,25 +102,30 @@ void Game::pollInput(double dt) {
 		wasPressed = false;
 	}
 
-	ImVec2 rectMin = ImGui::GetWindowPos();
-	rectMin.y -= 100;
-	ImVec2 rectSize = ImGui::GetWindowSize();
-	ImVec2 rectMax = ImVec2{rectMin.x + rectSize.x, rectMin.y + rectSize.y};
-
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && ! ImGui::IsWindowHovered())
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
+		&& !ImGui::IsWindowHovered()
+		&& !ImGui::IsAnyItemHovered()
+		&& !ImGui::IsAnyItemActive()
+		&& !ImGui::IsAnyItemFocused())
 	{
-		if (m_editMode && world.addWall(cursorGrid.x, cursorGrid.y))
+		if (m_editMode)
 		{
-			world.cacheWalls();
-		}
+			if (m_selectedElement == 0 && world.addWall(cursorGrid.x, cursorGrid.y))
+				world.cacheWalls();
+			if (m_selectedElement == 1 && world.addEnemy(cursorGrid.x, cursorGrid.y))
+				world.cacheEnemies(this);
 
-		if (m_editMode && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-		{
-			if (world.removeWall(cursorGrid.x, cursorGrid.y)) world.cacheWalls();
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+			{
+				if (m_selectedElement == 0 && world.removeWall(cursorGrid.x, cursorGrid.y))
+					world.cacheWalls();
+				if (m_selectedElement == 0 && world.removeEnemy(cursorGrid.x, cursorGrid.y))
+					world.cacheEnemies(this);
+			}
 		}
 	}
 
-	player->dx = playerDirX;
+	player.dx = playerDirX;
 }
 
 static sf::VertexArray va;
@@ -148,8 +148,10 @@ void Game::update(double dt) {
 
 	beforeParts.update(dt);
 	if (!m_editMode)
-		for (auto& entity : entities)
-			entity.update(dt);
+	{
+		world.update(dt);
+		player.update(dt);
+	}
 
 	afterParts.update(dt);
 
@@ -182,8 +184,7 @@ void Game::update(double dt) {
 
 	world.draw(win);
 
-	for (Entity& e : entities)
-		e.draw(win);
+	player.draw(win);
 
 	for (sf::RectangleShape& r : rects) 
 		win.draw(r);
@@ -197,8 +198,8 @@ void Game::update(double dt) {
 }
 
 void Game::onSpacePressed() {
-	if (player->onGround)
-		player->dy = -40;
+	if (player.onGround)
+		player.dy = -40;
 }
 
 void Game::im()
@@ -206,11 +207,23 @@ void Game::im()
 	if (!m_editMode && ImGui::Button("Edit Mode"))
 	{
 		m_editMode = true;
+		world.cacheEnemies(this);
 	}
 
 	if (m_editMode)
 	{
 		if (ImGui::Button("Quit Edit Mode")) m_editMode = false;
+
+		static int selectedItem = 0;
+		static const char* items[] {"Walls", "Enemy"};
+		if (ImGui::Combo("ElementType", &selectedItem, items, IM_ARRAYSIZE(items)))
+		{
+			m_selectedElement = selectedItem;
+			if (selectedItem == 0)
+				transparentWall.setFillColor(sf::Color(0x07ff07ff));
+			if (selectedItem == 1)
+				transparentWall.setFillColor(sf::Color(0x0707ffff));
+		}
 
 		if (ImGui::Button("Load data")) world.loadFile("world.sav");
 		if (ImGui::Button("Save data")) world.saveFile("world.sav");
@@ -219,7 +232,7 @@ void Game::im()
 	if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Indent();
-		player->im();
+		player.im();
 		ImGui::Unindent();
 	}
 	
