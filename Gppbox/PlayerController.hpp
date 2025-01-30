@@ -12,4 +12,5 @@ public:
 private:
 	bool m_lastFrameOnGround = false;
 	Throttle m_fireThrottler;
+	bool m_canShoot = false;
 };

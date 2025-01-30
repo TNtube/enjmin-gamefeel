@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "BulletHandler.hpp"
 #include "Camera.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/System.hpp"
@@ -31,6 +32,7 @@ public:
 	bool							closing = false;
 
 	World							world;
+	BulletHandler					bulletHandler;
 
 	sf::RectangleShape				transparentWall;
 	sf::Vector2i					cursorGrid;

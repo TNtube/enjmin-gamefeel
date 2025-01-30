@@ -139,6 +139,7 @@ void Game::update(double dt) {
 	{
 		world.update(dt);
 		player.update(dt);
+		bulletHandler.update(dt);
 	}
 
 	afterParts.update(dt);
@@ -179,7 +180,8 @@ void Game::update(double dt) {
 
 	if (m_editMode)
 		win.draw(transparentWall);
-	
+
+	bulletHandler.draw(win);
 
 	afterParts.draw(win);
 	win.setView(defaultView);
