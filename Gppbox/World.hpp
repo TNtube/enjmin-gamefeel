@@ -24,6 +24,8 @@ public:
 	bool removeEnemy(int x, int y);
 	bool isEnemyBasePosition(int x, int y);
 
+	Entity* getEnemyAt(float x, float y) const;
+
 	void update(double dt);
 	void draw(sf::RenderWindow& win);
 

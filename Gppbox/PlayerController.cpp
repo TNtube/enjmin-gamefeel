@@ -33,7 +33,7 @@ void PlayerController::shoot(double dt)
 	{
 		m_canShoot = false;
 		sf::Vector2f pos = {m_Entity->xx, m_Entity->yy};
-		sf::Vector2f from = {pos.x + (m_Entity->lastXDir > 1 ? C::GRID_SIZE : 0.f), m_Entity->yy + C::GRID_SIZE * (1.f/3.f)};
+		sf::Vector2f from = {pos.x + (m_Entity->lastXDir > 0 ? C::GRID_SIZE : 0.f), m_Entity->yy + C::GRID_SIZE * (1.f/4.f)};
 		auto to = from;
 		to.x += m_Entity->lastXDir;
 		m_pGame->bulletHandler.shoot(from, to);

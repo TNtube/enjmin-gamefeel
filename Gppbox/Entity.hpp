@@ -31,7 +31,7 @@ public:
 
 	bool onGround = false;
 
-	float pv = 1;
+	float pv = 5;
 
 	Entity(Game* game, int x, int y, Type type);
 

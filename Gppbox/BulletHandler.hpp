@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
-#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
+
+class Entity;
+class Game;
 
 class BulletHandler
 {
@@ -16,14 +19,18 @@ public:
 		float timer;
 	};
 
-	BulletHandler();
+	BulletHandler(Game* game);
+
+	size_t getBulletCount() const { return m_bullets.size(); }
 
 	void shoot(sf::Vector2f from, sf::Vector2f to);
 	void update(double dt);
 	void draw(sf::RenderWindow& win);
 
 private:
+	bool isCollidingWall(float x, float y) const;
 	std::vector<Bullet> m_bullets;
-	sf::RectangleShape m_bulletShape;
+	sf::CircleShape m_bulletShape;
+	Game* m_game;
 	
 };

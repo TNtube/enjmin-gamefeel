@@ -67,6 +67,20 @@ bool World::isEnemyBasePosition(int x, int y)
 	return false;
 }
 
+Entity* World::getEnemyAt(float x, float y) const
+{
+	for (auto entt : m_entities)
+	{
+		auto topLeft = sf::Vector2f{entt->xx, entt->yy};
+		auto bottomRight = sf::Vector2f{entt->xx + C::GRID_SIZE, entt->yy + C::GRID_SIZE};
+
+		if (x >= topLeft.x && x <= bottomRight.x && y >= topLeft.y && y <= bottomRight.y)
+			return entt;
+	}
+
+	return nullptr;
+}
+
 void World::update(double dt)
 {
 	for (auto it = m_entities.begin(); it != m_entities.end();)
@@ -139,6 +153,7 @@ bool World::loadFile(const std::filesystem::path& filePath)
 	std::ifstream in(filePath);
 
 	m_walls.clear();
+	clearEnemies();
 
 	
 	std::string line;

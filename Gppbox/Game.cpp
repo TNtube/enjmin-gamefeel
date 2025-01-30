@@ -14,7 +14,8 @@ static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win)
-	:	player(this, 5, 5, Entity::Type::Player),
+	:	bulletHandler(this),
+		player(this, 5, 5, Entity::Type::Player),
 		camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f}),
 		m_editMode(false), m_selectedElement(0)
 {
@@ -223,6 +224,8 @@ void Game::im()
 		}
 		if (ImGui::Button("Save data")) world.saveFile("world.sav");
 	}
+
+	ImGui::LabelText("Bullet count", "%zu", bulletHandler.getBulletCount());
 	
 	if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
 	{
