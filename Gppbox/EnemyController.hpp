@@ -11,5 +11,5 @@ public:
 
 private:
 	float m_Direction = 1.f;
-	float m_Speed = 10.f;
+	float m_Speed = 5.f;
 };

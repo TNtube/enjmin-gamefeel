@@ -152,9 +152,12 @@ bool World::loadFile(const std::filesystem::path& filePath)
 		{
 			m_walls.emplace_back(x, y);
 		}
-	}
 
-	cacheWalls();
+		if (static_cast<CellType>(type) == CellType::Enemy)
+		{
+			m_enemies.emplace_back(x, y);
+		}
+	}
 	return true;
 }
 

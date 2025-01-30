@@ -29,23 +29,10 @@ Game::Game(sf::RenderWindow * win)
 	bg.setSize(sf::Vector2f(C::RES_X, C::RES_Y));
 
 	bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
-	
-	for (int i = 0; i < C::RES_X / C::GRID_SIZE; ++i) 
-		world.addWall(i, lastLine);
 
-	world.addWall(0, lastLine-1);
-	world.addWall(0, lastLine-2);
-	world.addWall(0, lastLine-3);
-
-	world.addWall(cols-1, lastLine - 1);
-	world.addWall(cols-1, lastLine - 2);
-	world.addWall(cols-1, lastLine - 3);
-
-	world.addWall(cols >>2, lastLine - 2);
-	world.addWall(cols >>2, lastLine - 3);
-	world.addWall(cols >>2, lastLine - 4);
-	world.addWall((cols >> 2) + 1, lastLine - 4);
+	world.loadFile("world.sav");
 	world.cacheWalls();
+	world.cacheEnemies(this);
 
 	camera.setPlayer(&player);
 
@@ -71,6 +58,7 @@ static double g_tickTimer = 0.0;
 
 
 void Game::pollInput(double dt) {
+	if (!win->hasFocus()) return;
 
 	float lateralSpeed = 8.0;
 	float maxSpeed = 40.0;
@@ -119,7 +107,7 @@ void Game::pollInput(double dt) {
 			{
 				if (m_selectedElement == 0 && world.removeWall(cursorGrid.x, cursorGrid.y))
 					world.cacheWalls();
-				if (m_selectedElement == 0 && world.removeEnemy(cursorGrid.x, cursorGrid.y))
+				if (m_selectedElement == 1 && world.removeEnemy(cursorGrid.x, cursorGrid.y))
 					world.cacheEnemies(this);
 			}
 		}
@@ -225,7 +213,12 @@ void Game::im()
 				transparentWall.setFillColor(sf::Color(0x0707ffff));
 		}
 
-		if (ImGui::Button("Load data")) world.loadFile("world.sav");
+		if (ImGui::Button("Load data"))
+		{
+			world.loadFile("world.sav");
+			world.cacheWalls();
+			world.cacheEnemies(this);
+		}
 		if (ImGui::Button("Save data")) world.saveFile("world.sav");
 	}
 	
