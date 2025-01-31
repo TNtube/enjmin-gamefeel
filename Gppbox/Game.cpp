@@ -109,7 +109,12 @@ void Game::pollInput(double dt) {
 
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter) || sf::Joystick::getAxisPosition(0, Joystick::Z) < -50) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
+		timeScale = 0.05f;
+	else
+		timeScale = 1.0f;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {
 		player.getController<PlayerController>()->shoot(dt);
 
 	}
@@ -139,6 +144,7 @@ int blendModeIndex(sf::BlendMode bm) {
 };
 
 void Game::update(double dt) {
+	dt *= timeScale;
 	pollInput(dt);
 
 	if (player.onGround && m_inputBuffer.hasInput(sf::Keyboard::Space))
