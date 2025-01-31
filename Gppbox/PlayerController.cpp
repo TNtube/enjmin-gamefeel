@@ -35,5 +35,6 @@ void PlayerController::shoot(double dt)
 		auto to = from;
 		to.x += m_Entity->lastXDir;
 		m_pGame->bulletHandler.shoot(from, to);
+		m_Entity->offsetDx = -m_Entity->lastXDir * 5;
 	}
 }

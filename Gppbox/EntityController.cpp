@@ -11,11 +11,17 @@ void EntityController::update(double dt)
 	// while the direction value is not 0.
 	// if a collision is detected, we stop the movement
 	
+	double rate = 1.0 / dt;
+	double dfr = 60.0f / rate;
+	
 	// x movement
 	m_Entity->lastXDir = m_Entity->dx > 0 ? 1 : (m_Entity->dx < 0 ? -1 : m_Entity->lastXDir);
 
-	m_Entity->xr += m_Entity->dx * dt;
-	m_Entity->dx *= 0.96f;
+	m_Entity->xr += (m_Entity->dx + m_Entity->offsetDx) * dt;
+
+	auto frictionX = static_cast<float>(std::pow(m_Entity->frx, dfr));
+	m_Entity->dx *= frictionX;
+	m_Entity->offsetDx *= 0.96f;
 
 	// right
 	while (m_Entity->xr > 0)
@@ -40,7 +46,7 @@ void EntityController::update(double dt)
 	}
 
 	// y movement
-	m_Entity->yr += m_Entity->dy * dt;
+	m_Entity->yr += (m_Entity->dy + m_Entity->offsetDy) * dt;
 
 	// down
 	while(m_Entity->yr > 0.0f)
@@ -67,6 +73,10 @@ void EntityController::update(double dt)
 		}
 		m_Entity->cy--; m_Entity->yr++;
 	}
+
+	auto frictionY = static_cast<float>(std::pow(m_Entity->fry, dfr));
+	m_Entity->dy *= frictionY;
+	m_Entity->offsetDy *= 0.96f;
 
 	m_Entity->dy += C::GRAVITY * dt;
 

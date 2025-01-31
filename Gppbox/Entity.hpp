@@ -27,6 +27,13 @@ public:
 	// Movement
 	float dx, dy;
 
+	// Offset movement, to add recoil without affecting the player direction
+	float offsetDx, offsetDy;
+
+	// friction
+	float frx = 0.88f;
+	float fry = 1.0f;
+
 	float lastXDir = 1.f;
 
 	bool onGround = false;

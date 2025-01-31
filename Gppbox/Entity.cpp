@@ -10,7 +10,7 @@ Entity::Entity(Game* game, int cx, int cy, Type type)
 	:	sprite(sf::Vector2f(C::GRID_SIZE, C::GRID_SIZE)),
 		cx(cx), cy(cy), xr(0), yr(0),
 		xx(static_cast<float>(cx) * C::GRID_SIZE), yy(static_cast<float>(cy) * C::GRID_SIZE),
-		dx(0), dy(0), m_type(type)
+		dx(0), dy(0), offsetDx(0), offsetDy(0), m_type(type)
 {
 	sprite.setPosition(xx, yy);
 

@@ -44,7 +44,7 @@ void Camera::update(double dt)
 		if (playerCenter.x < m_leftBound)
 		{
 			m_xLevel = playerCenter.x + (m_view.getSize().x / 3.5f);
-			m_orientation = -m_orientation;
+			m_orientation = static_cast<int>(m_player->lastXDir);
 		}
 		if (playerCenter.x > m_rightBound)
 			m_xLevel = playerCenter.x + (m_view.getSize().x / 8.0f);
@@ -59,7 +59,7 @@ void Camera::update(double dt)
 		if (playerCenter.x > m_rightBound)
 		{
 			m_xLevel = playerCenter.x - (m_view.getSize().x / 3.5f);
-			m_orientation = -m_orientation;
+			m_orientation = static_cast<int>(m_player->lastXDir);
 		}
 	}
 

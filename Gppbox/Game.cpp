@@ -100,6 +100,10 @@ void Game::pollInput(double dt) {
 		playerDirX += -maxSpeed;
 
 	}
+	if (std::abs(playerDirX) > 0)
+	{
+		player.dx = playerDirX;
+	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
 		playerDirX += maxSpeed;
@@ -127,8 +131,6 @@ void Game::pollInput(double dt) {
 	else {
 		wasPressed = false;
 	}
-
-	player.dx = playerDirX;
 }
 
 static sf::VertexArray va;
