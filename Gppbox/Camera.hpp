@@ -64,5 +64,5 @@ private:
 	float m_shakeOffsetX = 0;
 	float m_shakeOffsetY = 0;
 
-	bool m_drawDebugLines = true;
+	bool m_drawDebugLines = false;
 };

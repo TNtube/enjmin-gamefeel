@@ -61,36 +61,6 @@ static double g_tickTimer = 0.0;
 void Game::pollInput(double dt) {
 	if (!win->hasFocus()) return;
 
-	float lateralSpeed = 8.0;
-	float maxSpeed = 40.0;
-	float playerDirX = 0;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-		playerDirX += -15;
-
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-		playerDirX += 15;
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
-
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) {
-		player.getController<PlayerController>()->shoot(dt);
-
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
-		if (!wasPressed) {
-			onSpacePressed();
-			wasPressed = true;
-		}
-	}
-	else {
-		wasPressed = false;
-	}
-
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
 		&& !ImGui::IsWindowHovered()
 		&& !ImGui::IsAnyItemHovered()
@@ -112,6 +82,43 @@ void Game::pollInput(double dt) {
 					world.cacheEnemies(this);
 			}
 		}
+	}
+
+	float playerDirX = 0;
+	float maxSpeed = 15;
+
+	float jsX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+
+	if (std::abs(jsX) > 50.0f)
+	{
+		playerDirX = jsX / 100.f * maxSpeed;
+	}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+		playerDirX += -maxSpeed;
+
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+		playerDirX += maxSpeed;
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter) || sf::Joystick::getAxisPosition(0, Joystick::Z) < -50) {
+		player.getController<PlayerController>()->shoot(dt);
+
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) || sf::Joystick::isButtonPressed(0, 0)) {
+		if (!wasPressed) {
+			onSpacePressed();
+			wasPressed = true;
+		}
+	}
+	else {
+		wasPressed = false;
 	}
 
 	player.dx = playerDirX;
