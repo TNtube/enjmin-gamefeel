@@ -41,7 +41,7 @@ void BulletHandler::update(double dt)
 			{
 				enemy->pv -= 1;
 				bullet.timer = 0;
-				m_game->camera.addShake(0.2f, 20.f);
+				m_game->camera.addShake(0.1f, 5.f);
 			}
 		}
 	}

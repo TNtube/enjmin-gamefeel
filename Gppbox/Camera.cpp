@@ -6,8 +6,9 @@
 #include "imgui.h"
 
 Camera::Camera(sf::Vector2f center, sf::Vector2f size)
-	:	m_view(center, size), m_yLevel(center.y),
+	:	m_view(center, size),
 		m_followSod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0}),
+		m_yLevel(center.y), m_xLevel(center.x),
 		m_rng(m_rngDev()), m_rngDist(-1, 1), m_throttler(0.016f),
 		m_shakeSod(8, 1, 0, {0, 0}) // magic numbers for shake
 {
@@ -22,26 +23,48 @@ void Camera::update(double dt)
 	}
 	auto playerCenter = sf::Vector2f(m_player->xx + C::GRID_SIZE / 2.f, m_player->yy + C::GRID_SIZE / 2.f);
 
-	float lowerBound = m_yLevel + (m_view.getSize().y / 5.f);
-	float upperBound = m_yLevel - (m_view.getSize().y / 3.f);
+	auto viewSize = m_view.getSize();
+	
+	m_lowerBound = m_yLevel + (viewSize.y / 5.f);
+	m_upperBound = m_yLevel - (viewSize.y / 3.f);
 
-
-	if (playerCenter.y < upperBound)
-	{
+	if (playerCenter.y < m_upperBound)
 		m_yLevel = playerCenter.y + (m_view.getSize().y / 3.f);
-	}
-	if (playerCenter.y > lowerBound)
-	{
+	if (playerCenter.y > m_lowerBound)
 		m_yLevel = playerCenter.y - (m_view.getSize().y / 5.f);
-	}
 
 	if (m_player->onGround)
-	{
 		m_yLevel = playerCenter.y - (m_view.getSize().y / 5.f);
+
+	if (m_orientation > 0)
+	{
+		m_rightBound = m_xLevel - (viewSize.x / 8.0f);
+		m_leftBound  = m_xLevel - (viewSize.x / 3.5f);
+
+		if (playerCenter.x < m_leftBound)
+		{
+			m_xLevel = playerCenter.x + (m_view.getSize().x / 3.5f);
+			m_orientation = -m_orientation;
+		}
+		if (playerCenter.x > m_rightBound)
+			m_xLevel = playerCenter.x + (m_view.getSize().x / 8.0f);
+	}
+	else
+	{
+		m_rightBound = m_xLevel + (viewSize.x / 3.5f);
+		m_leftBound  = m_xLevel + (viewSize.x / 8.0f);
+
+		if (playerCenter.x < m_leftBound)
+			m_xLevel = playerCenter.x - (m_view.getSize().x / 8.0f);
+		if (playerCenter.x > m_rightBound)
+		{
+			m_xLevel = playerCenter.x - (m_view.getSize().x / 3.5f);
+			m_orientation = -m_orientation;
+		}
 	}
 
 	auto target = sf::Vector2f {
-		playerCenter.x + (m_view.getSize().x / 4.0f * m_player->lastXDir),
+		m_xLevel,
 		m_yLevel
 	};
 
@@ -83,6 +106,14 @@ void Camera::update(double dt)
 	m_view.setCenter(cameraPosition);
 }
 
+void Camera::setPlayer(Entity* player)
+{
+	m_player = player;
+	m_xLevel = player->xx;
+	m_yLevel = player->yy;
+	
+}
+
 void Camera::addShake(float duration, float intensity)
 {
 	m_shakes.push_back({duration, intensity});
@@ -91,6 +122,26 @@ void Camera::addShake(float duration, float intensity)
 void Camera::setActive(sf::RenderWindow& win) const
 {
 	win.setView(m_view);
+
+	float w = static_cast<float>(win.getSize().x);
+	float h = static_cast<float>(win.getSize().y);
+
+	if (m_drawDebugLines)
+	{
+		sf::RectangleShape line;
+		line.setFillColor(sf::Color{0xff07ffff});
+		line.setSize({w * 2.0f, 3.0f});
+		line.setPosition({-w, m_upperBound});
+		win.draw(line);
+		line.setPosition({-w, m_lowerBound});
+		win.draw(line);
+
+		line.setSize({2.0f, h * 2.0f});
+		line.setPosition({m_leftBound, -h});
+		win.draw(line);
+		line.setPosition({m_rightBound, -h});
+		win.draw(line);
+	}
 }
 
 void Camera::im()
@@ -99,6 +150,7 @@ void Camera::im()
 
 	int plots = static_cast<int>(duration / timeStep);
 
+	ImGui::Checkbox("Draw Bound Lines", &m_drawDebugLines);
 
 	bool edit = false;
 	edit |= ImGui::DragFloat("frequency", &m_frequency, 0.01f);
