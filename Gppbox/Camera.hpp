@@ -50,4 +50,7 @@ private:
 
 	Throttle m_throttler;
 	SecondOrderDynamics2f m_shakeSod;
+
+	float m_shakeOffsetX = 0;
+	float m_shakeOffsetY = 0;
 };

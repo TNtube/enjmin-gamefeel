@@ -60,18 +60,24 @@ void Camera::update(double dt)
 			++it;
 		}
 	}
-	
-	float shakeX = 0;
-	float shakeY = 0;
-	if (m_throttler.shouldExecute(dt) && radius > 0)
+
+	if (radius > 0)
 	{
-		shakeX = m_rngDist(m_rng) * radius;
-		shakeY = m_rngDist(m_rng) * radius;
+		if (m_throttler.shouldExecute(dt))
+		{
+			m_shakeOffsetX = m_rngDist(m_rng) * radius;
+			m_shakeOffsetY = m_rngDist(m_rng) * radius;
+		}
+	}
+	else
+	{
+		m_shakeOffsetX = 0;
+		m_shakeOffsetY = 0;
 	}
 
 	// run most of the time for nothing, but we need to keep the internal state of the SOD up-to-date
 	// multiple sods are used to give different feels depending on the situation
-	cameraPosition = m_shakeSod.Update(dt, cameraPosition + sf::Vector2f{shakeX, shakeY});
+	cameraPosition = m_shakeSod.Update(dt, cameraPosition + sf::Vector2f{m_shakeOffsetX, m_shakeOffsetY});
 
 	m_view.setCenter(cameraPosition);
 }
