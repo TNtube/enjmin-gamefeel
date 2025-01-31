@@ -1,4 +1,5 @@
 #pragma once
+#include <random>
 #include <vector>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -32,5 +33,9 @@ private:
 	std::vector<Bullet> m_bullets;
 	sf::CircleShape m_bulletShape;
 	Game* m_game;
+	
+	std::random_device m_rngDev;
+	std::mt19937 m_rng;
+	std::uniform_real_distribution<float> m_rngDist;
 	
 };

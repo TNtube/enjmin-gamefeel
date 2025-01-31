@@ -5,7 +5,7 @@
 #include "Game.hpp"
 
 BulletHandler::BulletHandler(Game* game)
-	: m_game(game)
+	: m_game(game), m_rng(m_rngDev()), m_rngDist(-1, 1)
 {
 	m_bulletShape.setFillColor(sf::Color(0xffffffff));
 	m_bulletShape.setRadius(2.5f);
@@ -42,6 +42,29 @@ void BulletHandler::update(double dt)
 				enemy->pv -= 1;
 				bullet.timer = 0;
 				m_game->camera.addShake(0.1f, 5.f);
+
+				for (int i = 0; i < 10; ++i)
+				{
+					float x = m_rngDist(m_rng) * 150;
+					float y = m_rngDist(m_rng) * 150;
+
+					auto dir = MathUtils::slerp({x, y}, -bullet.direction, 0.9f);
+					
+					Particle p;
+					p.x = bullet.position.x;
+					p.y = bullet.position.y;
+					
+					p.dx = dir.x;
+					p.dy = dir.y;
+					p.bhv = [](Particle* p, float dt) {};
+
+					p.scaleX = 0.15f;
+					p.scaleY = 0.15f;
+
+					p.life = 0.3f;
+
+					m_game->afterParts.add(p);
+				}
 			}
 		}
 	}

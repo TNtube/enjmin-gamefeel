@@ -40,7 +40,7 @@ public:
 		
 		bhv(this,dt);
 
-		if (el.getSize().x <= 0.1 || el.getSize().y <= 0.1) {
+		if (el.getSize().x <= 0.1 || el.getSize().y <= 0.1 || life <= 0) {
 			destroyed = true;
 		}
 	}
