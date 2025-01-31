@@ -61,6 +61,8 @@ static double g_tickTimer = 0.0;
 void Game::pollInput(double dt) {
 	if (!win->hasFocus()) return;
 
+	m_inputBuffer.update(dt);
+
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
 		&& !ImGui::IsWindowHovered()
 		&& !ImGui::IsAnyItemHovered()
@@ -139,6 +141,12 @@ int blendModeIndex(sf::BlendMode bm) {
 void Game::update(double dt) {
 	pollInput(dt);
 
+	if (player.onGround && m_inputBuffer.hasInput(sf::Keyboard::Space))
+	{
+		player.dy = -40;
+		m_inputBuffer.consumeInput(sf::Keyboard::Space);
+	}
+
 	g_time += dt;
 	if (bgShader) bgShader->update(dt);
 
@@ -196,8 +204,7 @@ void Game::update(double dt) {
 }
 
 void Game::onSpacePressed() {
-	if (player.onGround)
-		player.dy = -40;
+	m_inputBuffer.addInput({sf::Keyboard::Space, 0.15f});
 }
 
 void Game::im()

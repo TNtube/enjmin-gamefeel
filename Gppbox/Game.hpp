@@ -14,6 +14,7 @@
 #include "ParticleMan.hpp"
 
 #include "Entity.hpp"
+#include "InputBuffer.hpp"
 #include "SecondOrderDynamics.hpp"
 #include "World.hpp"
 
@@ -42,6 +43,8 @@ public:
 	// camera data
 	Camera							camera;
 
+	float							timeScale = 1.0f;
+
 	ParticleMan beforeParts;
 	ParticleMan afterParts;
 
@@ -61,4 +64,5 @@ public:
 private:
 	bool m_editMode;
 	int m_selectedElement;
+	InputBuffer m_inputBuffer;
 };

@@ -172,6 +172,7 @@
     <ClCompile Include="EntityController.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HotReloadShader.cpp" />
+    <ClCompile Include="InputBuffer.cpp" />
     <ClCompile Include="Lib.cpp" />
     <ClCompile Include="libs\imgui-sfml\imgui-SFML.cpp" />
     <ClCompile Include="libs\imgui\imgui.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="EntityController.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="HotReloadShader.hpp" />
+    <ClInclude Include="InputBuffer.hpp" />
     <ClInclude Include="Interp.hpp" />
     <ClInclude Include="Lib.hpp" />
     <ClInclude Include="libs\imgui-sfml\imgui-SFML.h" />
