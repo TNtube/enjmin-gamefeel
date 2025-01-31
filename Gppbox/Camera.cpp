@@ -60,6 +60,7 @@ void Camera::update(double dt)
 			++it;
 		}
 	}
+	radius = std::min(radius, 100.0f); // avoid too much shaking
 
 	if (radius > 0)
 	{
