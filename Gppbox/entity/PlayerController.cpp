@@ -27,7 +27,8 @@ void PlayerController::update(double dt)
 
 void PlayerController::shoot(double dt)
 {
-	if (m_canShoot)
+	// dont shoot if time is frozen
+	if (m_canShoot && dt > 0)
 	{
 		m_canShoot = false;
 		sf::Vector2f pos = {m_Entity->xx, m_Entity->yy};

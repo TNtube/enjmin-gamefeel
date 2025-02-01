@@ -120,7 +120,7 @@ void Camera::addShake(float duration, float intensity)
 	m_shakes.push_back({duration, intensity});
 }
 
-void Camera::setActive(sf::RenderWindow& win) const
+void Camera::setActive(sf::RenderTarget& win) const
 {
 	win.setView(m_view);
 

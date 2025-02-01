@@ -13,6 +13,14 @@ public:
 		return sf::Vector2f(tx, ty);
 	}
 
+	static float lerp(float a, float b, float t) {
+		return (b - a) * t + a;
+	}
+
+	static float easeOutExpo(float a, float b, float t) {
+		return (b - a) * (-static_cast<float>(pow(2, -10 * t)) + 1) + a;
+	}
+
 	static float catmull(
 		float p0, 
 		float p1, 

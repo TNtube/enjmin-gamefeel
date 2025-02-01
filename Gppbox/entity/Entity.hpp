@@ -43,7 +43,7 @@ public:
 	Entity(Game* game, int x, int y, Type type);
 
 	void update(double dt) const;
-	void draw(sf::RenderWindow& win) const;
+	void draw(sf::RenderTarget& win) const;
 	void setCoordinates(float x, float y);
 
 	template <typename T>

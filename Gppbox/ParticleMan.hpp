@@ -22,7 +22,7 @@ public:
 		}
 	}
 
-	void draw(sf::RenderWindow& win) {
+	void draw(sf::RenderTarget& win) {
 		for (Particle & p : parts) {
 			win.draw(p.el);
 		}

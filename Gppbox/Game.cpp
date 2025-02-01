@@ -7,6 +7,7 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
+#include "Interp.hpp"
 #include "entity/PlayerController.hpp"
 
 
@@ -17,7 +18,7 @@ Game::Game(sf::RenderWindow * win)
 	:	bulletHandler(this),
 		player(this, 5, 5, Entity::Type::Player),
 		camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f}),
-		m_editMode(false), m_selectedElement(0)
+		m_editMode(false), m_selectedElement(0), m_blurShader("res/simple.vert", "res/tex_blur.frag")
 {
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
@@ -39,6 +40,9 @@ Game::Game(sf::RenderWindow * win)
 
 	transparentWall.setSize({C::GRID_SIZE, C::GRID_SIZE});
 	transparentWall.setFillColor(sf::Color(0x07ff0788));
+	
+	m_blurTexture.create(C::RES_X, C::RES_Y);
+	winTex.create(win->getSize().x, win->getSize().y);
 }
 
 void Game::processInput(sf::Event ev) {
@@ -50,6 +54,12 @@ void Game::processInput(sf::Event ev) {
 	if (ev.type == sf::Event::KeyReleased) {
 		
 	
+	}
+
+	if (ev.type == sf::Event::Resized)
+	{
+		m_blurTexture.create(win->getSize().x, win->getSize().y);
+		winTex.create(win->getSize().x, win->getSize().y);
 	}
 }
 
@@ -110,18 +120,43 @@ void Game::pollInput(double dt) {
 		player.dx = playerDirX;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-		playerDirX += maxSpeed;
-	}
-
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
 
 	}
 
+	m_blurAnimCounter += static_cast<float>(unscaledDt);
+	const float blurAnim = .1f;
+	const float slowAnim = .1f;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
-		timeScale = 0.05f;
+	{
+		if (!m_blurActive)
+			m_blurAnimCounter = 0.0f;
+		m_blurActive = true;
+		m_blurFactor =
+			m_blurAnimCounter <= blurAnim
+			? Interp::lerp(0, 0.5f, m_blurAnimCounter / blurAnim)
+			: 0.5f;
+		
+		timeScale = m_blurAnimCounter <= slowAnim
+			? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim)
+			: 0.0f;
+	}
 	else
-		timeScale = 1.0f;
+	{
+		if (m_blurActive)
+			m_blurAnimCounter = 0.0f;
+		m_blurActive = false;
+
+		m_blurFactor =
+			m_blurAnimCounter <= blurAnim
+			? Interp::lerp(0.5f, 0, m_blurAnimCounter / blurAnim)
+			: 0.0f;
+
+		timeScale = m_blurAnimCounter <= slowAnim
+			? Interp::lerp(0, 1, m_blurAnimCounter / slowAnim)
+			: 1.0f;
+	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {
 		player.getController<PlayerController>()->shoot(dt);
@@ -151,6 +186,7 @@ int blendModeIndex(sf::BlendMode bm) {
 };
 
 void Game::update(double dt) {
+	unscaledDt = dt;
 	dt *= timeScale;
 	pollInput(dt);
 
@@ -185,6 +221,14 @@ void Game::update(double dt) {
  void Game::draw(sf::RenderWindow & win) {
 	if (closing) return;
 
+	sf::RenderTarget* target = &win;
+
+	if (m_blurFactor >= 0.01f)
+	{
+		m_blurTexture.clear(sf::Color::Black);
+		target = &m_blurTexture;
+	}
+
 	sf::RenderStates states = sf::RenderStates::Default;
 	sf::Shader * sh = &bgShader->sh;
 	states.blendMode = sf::BlendAdd;
@@ -192,28 +236,43 @@ void Game::update(double dt) {
 	states.texture = &tex;
 	sh->setUniform("texture", tex);
 	//sh->setUniform("time", g_time);
-	win.draw(bg, states);
+	target->draw(bg, states);
 
-	auto defaultView = win.getView();
+	auto defaultView = target->getView();
 
 	if (!m_editMode)
-		camera.setActive(win);
-	beforeParts.draw(win);
+		camera.setActive(*target);
+	beforeParts.draw(*target);
 
-	world.draw(win);
+	world.draw(*target);
 
-	player.draw(win);
+	player.draw(*target);
 
 	for (sf::RectangleShape& r : rects) 
-		win.draw(r);
+		target->draw(r);
 
 	if (m_editMode)
-		win.draw(transparentWall);
+		target->draw(transparentWall);
 
-	bulletHandler.draw(win);
+	bulletHandler.draw(*target);
 
-	afterParts.draw(win);
-	win.setView(defaultView);
+	afterParts.draw(*target);
+	target->setView(defaultView);
+
+	// Apply the shader and draw the sprite
+	if (m_blurFactor >= 0.01f)
+	{
+		m_blurTexture.display();
+		auto texture = m_blurTexture.getTexture();
+		sf::RenderStates blurRenderState;
+		m_blurShader.sh.setUniform("image", texture);
+		m_blurShader.sh.setUniform("blur_radius", 0.005f);
+		m_blurShader.sh.setUniform("dark_factor", m_blurFactor);
+		m_blurShader.sh.setUniform("resolution", sf::Vector2f{win.getSize()});
+		blurRenderState.shader = &m_blurShader.sh;
+		sf::Sprite sprite(winTex);
+		win.draw(sprite, blurRenderState);
+	}
 }
 
 void Game::onSpacePressed() {
@@ -222,6 +281,8 @@ void Game::onSpacePressed() {
 
 void Game::im()
 {
+	ImGui::DragFloat("Blur factor", &m_blurFactor);
+	ImGui::DragFloat("Blur anim counter", &m_blurAnimCounter);
 	if (!m_editMode && ImGui::Button("Edit Mode"))
 	{
 		m_editMode = true;

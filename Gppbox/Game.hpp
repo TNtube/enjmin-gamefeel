@@ -14,6 +14,7 @@
 #include "entity/Entity.hpp"
 #include "InputBuffer.hpp"
 #include "World.hpp"
+#include "HotReloadShader.hpp"
 
 using namespace sf;
 
@@ -41,6 +42,7 @@ public:
 	Camera							camera;
 
 	float							timeScale = 1.0f;
+	double							unscaledDt = 0.0;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;
@@ -62,4 +64,13 @@ private:
 	bool m_editMode;
 	int m_selectedElement;
 	InputBuffer m_inputBuffer;
+
+	bool m_blurActive = false;
+
+	HotReloadShader m_blurShader;
+	sf::Texture winTex;
+	sf::RenderTexture m_blurTexture;
+	float m_blurFactor = 0.0f;
+
+	float m_blurAnimCounter = 1000.f;
 };

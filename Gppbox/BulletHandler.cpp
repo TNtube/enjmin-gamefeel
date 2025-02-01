@@ -70,7 +70,7 @@ void BulletHandler::update(double dt)
 	}
 }
 
-void BulletHandler::draw(sf::RenderWindow& win)
+void BulletHandler::draw(sf::RenderTarget& win)
 {
 	for (auto& bullet : m_bullets)
 	{

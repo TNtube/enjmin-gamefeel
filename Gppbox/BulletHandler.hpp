@@ -26,7 +26,7 @@ public:
 
 	void shoot(sf::Vector2f from, sf::Vector2f to);
 	void update(double dt);
-	void draw(sf::RenderWindow& win);
+	void draw(sf::RenderTarget& win);
 
 private:
 	bool isCollidingWall(float x, float y) const;

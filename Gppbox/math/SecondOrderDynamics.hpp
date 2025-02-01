@@ -45,7 +45,11 @@ void SecondOrderDynamics<T>::SetParams(float frequency, float damping, float ove
 template <typename T>
 T SecondOrderDynamics<T>::Update(float dt, T x)
 {
-	auto xd = (x - m_previous) / dt;
+	T xd = m_previous;
+	if (dt > 0)
+	{
+		xd = (x - m_previous) / dt;
+	}
 	m_previous = x;
 
 	float k2Stable = std::max({m_k2, dt*dt/2 + dt*m_k1/2, dt*m_k1});

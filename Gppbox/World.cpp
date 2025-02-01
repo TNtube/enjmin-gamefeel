@@ -139,7 +139,7 @@ bool World::removeEnemy(int x, int y)
 	return true;
 }
 
-void World::draw(sf::RenderWindow& win)
+void World::draw(sf::RenderTarget& win)
 {
 	for (sf::RectangleShape & r : m_wallSprites)
 		win.draw(r);

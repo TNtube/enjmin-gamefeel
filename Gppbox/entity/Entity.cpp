@@ -60,7 +60,7 @@ void Entity::update(double dt) const
 	m_pController->update(dt);
 }
 
-void Entity::draw(sf::RenderWindow& win) const
+void Entity::draw(sf::RenderTarget& win) const
 {
 	win.draw(sprite);
 }

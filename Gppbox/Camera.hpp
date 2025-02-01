@@ -18,7 +18,7 @@ public:
 	void update(double dt);
 
 	void setPlayer(Entity* player);
-	void setActive(sf::RenderWindow& win) const;
+	void setActive(sf::RenderTarget& win) const;
 
 	void addShake(float duration, float intensity);
 

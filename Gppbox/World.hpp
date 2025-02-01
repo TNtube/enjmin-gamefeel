@@ -32,7 +32,7 @@ public:
 	Entity* getEnemyAt(float x, float y) const;
 
 	void update(double dt);
-	void draw(sf::RenderWindow& win);
+	void draw(sf::RenderTarget& win);
 
 
 	bool loadFile(const std::filesystem::path& filePath);
