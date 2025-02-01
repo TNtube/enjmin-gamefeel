@@ -100,6 +100,11 @@ void Game::pollInput(double dt) {
 		playerDirX += -maxSpeed;
 
 	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+		playerDirX += maxSpeed;
+	}
+
 	if (std::abs(playerDirX) > 0)
 	{
 		player.dx = playerDirX;
