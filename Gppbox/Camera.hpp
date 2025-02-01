@@ -2,8 +2,8 @@
 #include <random>
 #include <SFML/Graphics/View.hpp>
 
-#include "Entity.hpp"
-#include "SecondOrderDynamics.hpp"
+#include "entity/Entity.hpp"
+#include "math/SecondOrderDynamics.hpp"
 #include "Throttle.h"
 
 namespace sf

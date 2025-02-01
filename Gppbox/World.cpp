@@ -4,6 +4,8 @@
 #include <sstream>
 
 #include "C.hpp"
+#include "entity/Entity.hpp"
+#include "Game.hpp"
 
 bool World::addWall(int x, int y)
 {

@@ -1,7 +1,7 @@
 #include "BulletHandler.hpp"
 
 #include "C.hpp"
-#include "MathUtils.hpp"
+#include "math/MathUtils.hpp"
 #include "Game.hpp"
 
 BulletHandler::BulletHandler(Game* game)
@@ -30,11 +30,11 @@ void BulletHandler::update(double dt)
 		else
 		{
 			auto dir = bullet.direction * bullet.speed;
-			dir.x *= dt;
-			dir.y *= dt;
+			dir.x *= static_cast<float>(dt);
+			dir.y *= static_cast<float>(dt);
 			bullet.position += dir;
 			++it;
-			bullet.timer -= dt;
+			bullet.timer -= static_cast<float>(dt);
 
 			if (isCollidingWall(bullet.position.x, bullet.position.y)) bullet.timer = 0;
 			if (auto enemy =m_game->world.getEnemyAt(bullet.position.x, bullet.position.y))
@@ -48,14 +48,14 @@ void BulletHandler::update(double dt)
 					float x = (Dice::randF() * 2.0f - 1.0f) * 150;
 					float y = (Dice::randF() * 2.0f - 1.0f) * 150;
 
-					auto dir = MathUtils::slerp({x, y}, -bullet.direction, 0.9f);
+					auto slerpDir = MathUtils::slerp({x, y}, -bullet.direction, 0.9f);
 					
 					Particle p;
 					p.x = bullet.position.x;
 					p.y = bullet.position.y;
 					
-					p.dx = dir.x;
-					p.dy = dir.y;
+					p.dx = slerpDir.x;
+					p.dy = slerpDir.y;
 					p.bhv = [](Particle* p, float dt) {};
 
 					p.scaleX = 0.15f;

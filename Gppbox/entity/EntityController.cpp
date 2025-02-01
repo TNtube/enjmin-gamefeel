@@ -17,7 +17,7 @@ void EntityController::update(double dt)
 	// x movement
 	m_Entity->lastXDir = m_Entity->dx > 0 ? 1 : (m_Entity->dx < 0 ? -1 : m_Entity->lastXDir);
 
-	m_Entity->xr += (m_Entity->dx + m_Entity->offsetDx) * dt;
+	m_Entity->xr += static_cast<float>((m_Entity->dx + m_Entity->offsetDx) * dt);
 
 	auto frictionX = static_cast<float>(std::pow(m_Entity->frx, dfr));
 	m_Entity->dx *= frictionX;
@@ -46,7 +46,7 @@ void EntityController::update(double dt)
 	}
 
 	// y movement
-	m_Entity->yr += (m_Entity->dy + m_Entity->offsetDy) * dt;
+	m_Entity->yr += static_cast<float>((m_Entity->dy + m_Entity->offsetDy) * dt);
 
 	// down
 	while(m_Entity->yr > 0.0f)
@@ -78,10 +78,10 @@ void EntityController::update(double dt)
 	m_Entity->dy *= frictionY;
 	m_Entity->offsetDy *= 0.96f;
 
-	m_Entity->dy += C::GRAVITY * dt;
+	m_Entity->dy += static_cast<float>(C::GRAVITY * dt);
 
-	m_Entity->xx =(m_Entity->cx + m_Entity->xr) * C::GRID_SIZE;
-	m_Entity->yy =(m_Entity->cy + m_Entity->yr) * C::GRID_SIZE;
+	m_Entity->xx =(static_cast<float>(m_Entity->cx) + m_Entity->xr) * C::GRID_SIZE;
+	m_Entity->yy =(static_cast<float>(m_Entity->cy) + m_Entity->yr) * C::GRID_SIZE;
 	m_Entity->sprite.setPosition(m_Entity->xx, m_Entity->yy);
 }
 

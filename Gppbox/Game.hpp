@@ -5,17 +5,14 @@
 #include "BulletHandler.hpp"
 #include "Camera.hpp"
 #include "SFML/Graphics.hpp"
-#include "SFML/System.hpp"
 #include "SFML/Window.hpp"
 
 #include "sys.hpp"
 
-#include "Particle.hpp"
 #include "ParticleMan.hpp"
 
-#include "Entity.hpp"
+#include "entity/Entity.hpp"
 #include "InputBuffer.hpp"
-#include "SecondOrderDynamics.hpp"
 #include "World.hpp"
 
 using namespace sf;

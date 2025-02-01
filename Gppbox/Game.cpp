@@ -7,7 +7,7 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
-#include "PlayerController.hpp"
+#include "entity/PlayerController.hpp"
 
 
 static int cols = C::RES_X / C::GRID_SIZE;
