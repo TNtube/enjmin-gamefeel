@@ -5,7 +5,7 @@
 #include "Game.hpp"
 
 BulletHandler::BulletHandler(Game* game)
-	: m_game(game), m_rng(m_rngDev()), m_rngDist(-1, 1)
+	: m_game(game)
 {
 	m_bulletShape.setFillColor(sf::Color(0xffffffff));
 	m_bulletShape.setRadius(2.5f);
@@ -45,8 +45,8 @@ void BulletHandler::update(double dt)
 
 				for (int i = 0; i < 10; ++i)
 				{
-					float x = m_rngDist(m_rng) * 150;
-					float y = m_rngDist(m_rng) * 150;
+					float x = (Dice::randF() * 2.0f - 1.0f) * 150;
+					float y = (Dice::randF() * 2.0f - 1.0f) * 150;
 
 					auto dir = MathUtils::slerp({x, y}, -bullet.direction, 0.9f);
 					

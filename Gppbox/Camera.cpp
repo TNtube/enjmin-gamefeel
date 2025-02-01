@@ -3,13 +3,14 @@
 #include <iostream>
 
 #include "C.hpp"
+#include "Dice.hpp"
 #include "imgui.h"
 
 Camera::Camera(sf::Vector2f center, sf::Vector2f size)
 	:	m_view(center, size),
 		m_followSod(m_frequency, m_damping, m_overshoot, sf::Vector2f{0, 0}),
 		m_yLevel(center.y), m_xLevel(center.x),
-		m_rng(m_rngDev()), m_rngDist(-1, 1), m_throttler(0.016f),
+		m_throttler(0.016f),
 		m_shakeSod(8, 1, 0, {0, 0}) // magic numbers for shake
 {
 }
@@ -89,8 +90,8 @@ void Camera::update(double dt)
 	{
 		if (m_throttler.shouldExecute(dt))
 		{
-			m_shakeOffsetX = m_rngDist(m_rng) * radius;
-			m_shakeOffsetY = m_rngDist(m_rng) * radius;
+			m_shakeOffsetX = (Dice::randF() * 2.0f - 1.0f) * radius;
+			m_shakeOffsetY = (Dice::randF() * 2.0f - 1.0f) * radius;
 		}
 	}
 	else

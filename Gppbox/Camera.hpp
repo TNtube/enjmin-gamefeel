@@ -54,9 +54,6 @@ private:
 	};
 
 	std::vector<Shake> m_shakes;
-	std::random_device m_rngDev;
-	std::mt19937 m_rng;
-	std::uniform_real_distribution<float> m_rngDist;
 
 	Throttle m_throttler;
 	SecondOrderDynamics2f m_shakeSod;

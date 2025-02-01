@@ -34,8 +34,4 @@ private:
 	sf::CircleShape m_bulletShape;
 	Game* m_game;
 	
-	std::random_device m_rngDev;
-	std::mt19937 m_rng;
-	std::uniform_real_distribution<float> m_rngDist;
-	
 };
