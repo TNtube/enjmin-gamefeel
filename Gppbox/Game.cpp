@@ -134,13 +134,14 @@ void Game::pollInput(double dt) {
 	constexpr float blurAnim = .1f;
 	constexpr float slowAnim = .1f;
 
-	if (!m_pickerActive && sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
 	{
-		if (!m_blurActive) {
-			// animation start
-			m_blurAnimCounter = 0.0f;
+		if (!m_pickerPressed){
+			m_blurAnimCounter = 0.0f; // animation start
 			weaponPicker.fadeIn();
 		}
+
+		m_pickerPressed = true;
 		m_blurActive = true;
 		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0, 0.5f, m_blurAnimCounter / blurAnim) : 0.5f;
 		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim) : 0.0f;
@@ -148,13 +149,14 @@ void Game::pollInput(double dt) {
 		if (m_blurAnimCounter > std::max(blurAnim, slowAnim))
 			m_pickerActive = true; // animation done
 	}
-	else if (m_blurActive)
+	else
 	{
-		if (m_pickerActive) {
-			// animation start
-			m_blurAnimCounter = 0.0f;
+		if (m_pickerPressed){
+			m_blurAnimCounter = 0.0f; // animation start
 			weaponPicker.fadeOut();
 		}
+
+		m_pickerPressed = false;
 		m_pickerActive = false;
 		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0.5f, 0, m_blurAnimCounter / blurAnim) : 0.0f;
 		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(0, 1, m_blurAnimCounter / slowAnim) : 1.0f;
@@ -231,7 +233,7 @@ void Game::update(double dt) {
 
 	sf::RenderTarget* target = &win;
 
-	if (m_blurFactor >= 0.01f)
+	if (m_blurActive)
 	{
 		m_blurTexture.clear(sf::Color::Black);
 		target = &m_blurTexture;
@@ -268,7 +270,7 @@ void Game::update(double dt) {
 	target->setView(defaultView);
 
 	// Apply the shader and draw the sprite
-	if (m_blurFactor >= 0.01f)
+	if (m_blurActive)
 	{
 		m_blurTexture.display();
 		auto texture = m_blurTexture.getTexture();
@@ -280,10 +282,8 @@ void Game::update(double dt) {
 		blurRenderState.shader = &m_blurShader.sh;
 		sf::Sprite sprite(winTex);
 		win.draw(sprite, blurRenderState);
-	}
 
-	if (m_blurActive)
-	{
+		// draw the picker on top
 		weaponPicker.draw(win);
 	}
 }

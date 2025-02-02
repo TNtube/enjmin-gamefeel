@@ -87,4 +87,5 @@ private:
 	float m_blurAnimCounter = 1000.f;
 
 	bool m_pickerActive = false;
+	bool m_pickerPressed = false;
 };
