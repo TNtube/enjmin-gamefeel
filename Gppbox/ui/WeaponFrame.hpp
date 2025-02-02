@@ -15,15 +15,19 @@ public:
 	void draw(sf::RenderTarget& target) const;
 
 	void setScale(float x, float y) { m_targetScale = {x, y}; }
-	
+	void setPosition(float x, float y) { m_targetPosition = {x, y}; }
+
+	void resetScale() { m_targetScale = m_baseScale; }
+	void resetPosition() { m_targetPosition = m_basePosition; }
 
 private:
 	RoundedRectangleShape m_shape;
 
+	sf::Vector2f m_baseScale = {0.05f, 0.05f};
 	sf::Vector2f m_targetScale = {0.05f, 0.05f};
 	SecondOrderDynamics2f m_scaleSod;
 
-	sf::Vector2f m_finalPosition;
+	sf::Vector2f m_basePosition;
 	sf::Vector2f m_targetPosition;
 	SecondOrderDynamics2f m_positionSod;
 };

@@ -131,37 +131,36 @@ void Game::pollInput(double dt) {
 	}
 
 	m_blurAnimCounter += static_cast<float>(unscaledDt);
-	const float blurAnim = .1f;
-	const float slowAnim = .1f;
+	constexpr float blurAnim = .1f;
+	constexpr float slowAnim = .1f;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
+	if (!m_pickerActive && sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Joystick::isButtonPressed(0, 4))
 	{
-		if (!m_blurActive)
+		if (!m_blurActive) {
+			// animation start
 			m_blurAnimCounter = 0.0f;
+			weaponPicker.fadeIn();
+		}
 		m_blurActive = true;
-		m_blurFactor =
-			m_blurAnimCounter <= blurAnim
-			? Interp::lerp(0, 0.5f, m_blurAnimCounter / blurAnim)
-			: 0.5f;
-		
-		timeScale = m_blurAnimCounter <= slowAnim
-			? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim)
-			: 0.0f;
+		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0, 0.5f, m_blurAnimCounter / blurAnim) : 0.5f;
+		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim) : 0.0f;
+
+		if (m_blurAnimCounter > std::max(blurAnim, slowAnim))
+			m_pickerActive = true; // animation done
 	}
-	else
+	else if (m_blurActive)
 	{
-		if (m_blurActive)
+		if (m_pickerActive) {
+			// animation start
 			m_blurAnimCounter = 0.0f;
-		m_blurActive = false;
+			weaponPicker.fadeOut();
+		}
+		m_pickerActive = false;
+		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0.5f, 0, m_blurAnimCounter / blurAnim) : 0.0f;
+		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(0, 1, m_blurAnimCounter / slowAnim) : 1.0f;
 
-		m_blurFactor =
-			m_blurAnimCounter <= blurAnim
-			? Interp::lerp(0.5f, 0, m_blurAnimCounter / blurAnim)
-			: 0.0f;
-
-		timeScale = m_blurAnimCounter <= slowAnim
-			? Interp::lerp(0, 1, m_blurAnimCounter / slowAnim)
-			: 1.0f;
+		if (m_blurAnimCounter > std::max(blurAnim, slowAnim))
+			m_blurActive = false; // animation done
 	}
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {

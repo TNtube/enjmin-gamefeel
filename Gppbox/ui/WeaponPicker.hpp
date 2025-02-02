@@ -15,8 +15,10 @@ public:
 
 	void update(double dt);
 	void draw(sf::RenderTarget& target);
-
 	void im();
+
+	void fadeIn();
+	void fadeOut();
 
 private:
 	Game* m_game;

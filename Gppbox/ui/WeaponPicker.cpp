@@ -64,21 +64,26 @@ void WeaponPicker::update(double dt)
 	{
 		float angle = std::atan2(direction.y, direction.x) * 180 / 3.14159265f;
 
+		int pickedWeapon;
 		if (angle > -135 && angle < -45)
-			m_pickedWeapon = 0; // Up
+			pickedWeapon = 0; // Up
 		else if (angle > -45 && angle < 45)
-			m_pickedWeapon = 1; // Right
+			pickedWeapon = 1; // Right
 		else if (angle > 45 && angle < 135)
-			m_pickedWeapon = 2; // Down
+			pickedWeapon = 2; // Down
 		else
-			m_pickedWeapon = 3; // Left
-	}
+			pickedWeapon = 3; // Left
 
-	for (auto& frame : m_frames)
-	{
-		frame.setScale(1, 1);
+		if (pickedWeapon != m_pickedWeapon)
+		{
+			m_pickedWeapon = pickedWeapon;
+			for (auto& frame : m_frames)
+			{
+				frame.setScale(1, 1);
+			}
+			m_frames[m_pickedWeapon].setScale(1.4f, 1.4f);
+		}
 	}
-	m_frames[m_pickedWeapon].setScale(1.4f, 1.4f);
 
 	for (auto& frame : m_frames)
 	{
@@ -102,4 +107,23 @@ void WeaponPicker::im()
 	// ImGui::Text("Cursor pos: %f, %f", cursorPos.x, cursorPos.y);
 	// ImGui::Text("Cursor lenght to center: %f", MathUtils::length(cursorPos - m_center));
 	// ImGui::Text("Picked weapon: %d", m_pickedWeapon);
+}
+
+void WeaponPicker::fadeIn()
+{
+	for (auto& frame : m_frames)
+	{
+		frame.setScale(1.0f, 1.0f);
+		frame.resetPosition();
+	}
+	m_frames[m_pickedWeapon].setScale(1.4f, 1.4f);
+}
+
+void WeaponPicker::fadeOut()
+{
+	for (auto& frame : m_frames)
+	{
+		frame.resetScale();
+		frame.setPosition(m_center.x, m_center.y);
+	}
 }
