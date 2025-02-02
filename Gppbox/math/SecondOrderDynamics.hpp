@@ -38,7 +38,7 @@ void SecondOrderDynamics<T>::SetParams(float frequency, float damping, float ove
 	m_overshoot = overshoot;
 	
 	m_k1 = m_damping / (Lib::pi<float>() * m_frequency);
-	m_k2 = 1.0f / std::pow(2 * Lib::pi<float>() * m_frequency, 2);
+	m_k2 = 1.0f / pow(2 * Lib::pi<float>() * m_frequency, 2);
 	m_k3 = m_overshoot * m_damping / (2 * Lib::pi<float>() * m_frequency);
 }
 

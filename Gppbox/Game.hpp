@@ -15,8 +15,15 @@
 #include "InputBuffer.hpp"
 #include "World.hpp"
 #include "HotReloadShader.hpp"
+#include "ui/WeaponPicker.hpp"
 
 using namespace sf;
+
+enum class InputType : uint8_t
+{
+	Keyboard,
+	Joystick
+};
 
 class HotReloadShader;
 class Game {
@@ -38,11 +45,16 @@ public:
 
 	Entity							player;
 
+	InputType						lastInput = InputType::Keyboard;
+
 	// camera data
 	Camera							camera;
 
 	float							timeScale = 1.0f;
 	double							unscaledDt = 0.0;
+
+	// ui
+	WeaponPicker					weaponPicker;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;

@@ -15,10 +15,11 @@ static int cols = C::RES_X / C::GRID_SIZE;
 static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win)
-	:	bulletHandler(this),
+	:	win(win), bulletHandler(this),
 		player(this, 5, 5, Entity::Type::Player),
 		camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f}),
-		m_editMode(false), m_selectedElement(0), m_blurShader("res/simple.vert", "res/tex_blur.frag")
+		weaponPicker(this), m_editMode(false), m_selectedElement(0),
+		m_blurShader("res/simple.vert", "res/tex_blur.frag")
 {
 	this->win = win;
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
@@ -61,6 +62,11 @@ void Game::processInput(sf::Event ev) {
 		m_blurTexture.create(win->getSize().x, win->getSize().y);
 		winTex.create(win->getSize().x, win->getSize().y);
 	}
+
+	if (ev.type == sf::Event::MouseMoved || ev.type == sf::Event::MouseButtonPressed || ev.type == sf::Event::KeyPressed)
+		lastInput = InputType::Keyboard;
+	if (ev.type == sf::Event::JoystickButtonPressed || ev.type == sf::Event::JoystickMoved)
+		lastInput = InputType::Joystick;
 }
 
 
@@ -71,7 +77,7 @@ static double g_tickTimer = 0.0;
 void Game::pollInput(double dt) {
 	if (!win->hasFocus()) return;
 
-	m_inputBuffer.update(dt);
+	m_inputBuffer.update(unscaledDt);
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
 		&& !ImGui::IsWindowHovered()
@@ -158,7 +164,7 @@ void Game::pollInput(double dt) {
 			: 1.0f;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {
 		player.getController<PlayerController>()->shoot(dt);
 
 	}
@@ -216,6 +222,9 @@ void Game::update(double dt) {
 	cursorGrid.y = cursorPos.y / C::GRID_SIZE;
 
 	transparentWall.setPosition({static_cast<float>(cursorGrid.x) * C::GRID_SIZE, static_cast<float>(cursorGrid.y) * C::GRID_SIZE});
+
+	if (m_blurActive)
+		weaponPicker.update(unscaledDt);
 }
 
  void Game::draw(sf::RenderWindow & win) {
@@ -273,6 +282,11 @@ void Game::update(double dt) {
 		sf::Sprite sprite(winTex);
 		win.draw(sprite, blurRenderState);
 	}
+
+	if (m_blurActive)
+	{
+		weaponPicker.draw(win);
+	}
 }
 
 void Game::onSpacePressed() {
@@ -314,6 +328,8 @@ void Game::im()
 	}
 
 	ImGui::LabelText("Bullet count", "%zu", bulletHandler.getBulletCount());
+
+	weaponPicker.im();
 	
 	if (ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_DefaultOpen))
 	{

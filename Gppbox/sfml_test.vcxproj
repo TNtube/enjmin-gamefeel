@@ -183,6 +183,9 @@
     <ClCompile Include="math\MathUtils.cpp"/>
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="sys.cpp" />
+    <ClCompile Include="ui\RoundedRectangleShape.cpp" />
+    <ClCompile Include="ui\WeaponFrame.cpp" />
+    <ClCompile Include="ui\WeaponPicker.cpp"/>
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +213,9 @@
     <ClInclude Include="ParticleMan.hpp" />
     <ClInclude Include="sys.hpp" />
     <ClInclude Include="Throttle.h" />
+    <ClInclude Include="ui\RoundedRectangleShape.hpp" />
+    <ClInclude Include="ui\WeaponFrame.hpp" />
+    <ClInclude Include="ui\WeaponPicker.hpp" />
     <ClInclude Include="World.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

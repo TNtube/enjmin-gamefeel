@@ -2,6 +2,11 @@
 #include <cmath>
 #include <algorithm>
 
+float MathUtils::length(const sf::Vector2f& source)
+{
+	return std::sqrt((source.x * source.x) + (source.y * source.y));
+}
+
 sf::Vector2f MathUtils::normalize(const sf::Vector2f& source)
 {
 	float length = std::sqrt((source.x * source.x) + (source.y * source.y));
