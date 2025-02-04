@@ -1,11 +1,63 @@
 #include "World.hpp"
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "C.hpp"
 #include "entity/Entity.hpp"
 #include "Game.hpp"
+
+namespace
+{
+	namespace WallNeighbourhood
+	{
+		enum Value : uint8_t
+		{
+			Null		= 0,
+			Top			= 1 << 0,
+			Right		= 1 << 1,
+			Bottom		= 1 << 2,
+			Left		= 1 << 3,
+		};
+	}
+
+	const std::unordered_map<uint32_t, Vector2f> textureCoords = {
+		{WallNeighbourhood::Null, {18, 16}},
+		{WallNeighbourhood::Top, {18, 15}},
+		{WallNeighbourhood::Bottom, {18, 13}},
+		{WallNeighbourhood::Right, {15, 16}},
+		{WallNeighbourhood::Left, {17, 16}},
+		{WallNeighbourhood::Left | WallNeighbourhood::Right, {16, 16}},
+		{WallNeighbourhood::Top | WallNeighbourhood::Bottom, {18, 14}},
+		{WallNeighbourhood::Top | WallNeighbourhood::Right, {15, 15}},
+		{WallNeighbourhood::Top | WallNeighbourhood::Left, {17, 15}},
+		{WallNeighbourhood::Bottom | WallNeighbourhood::Left, {17, 13}},
+		{WallNeighbourhood::Bottom | WallNeighbourhood::Right, {15, 13}},
+		{WallNeighbourhood::Top | WallNeighbourhood::Bottom | WallNeighbourhood::Right, {15, 14}},
+		{WallNeighbourhood::Left | WallNeighbourhood::Top | WallNeighbourhood::Right, {16, 15}},
+		{WallNeighbourhood::Top | WallNeighbourhood::Bottom | WallNeighbourhood::Left, {17, 14}},
+		{WallNeighbourhood::Left | WallNeighbourhood::Right | WallNeighbourhood::Bottom, {16, 13}},
+		{WallNeighbourhood::Left | WallNeighbourhood::Right | WallNeighbourhood::Top | WallNeighbourhood::Bottom, {18, 18}},
+	};
+
+	Vector2f getTextureCoordFromWallPosition(WallNeighbourhood::Value neighbourhood)
+	{
+		for (const auto& coord : textureCoords)
+		{
+			if (neighbourhood == coord.first)
+				return coord.second;
+		}
+
+		return textureCoords.at(WallNeighbourhood::Null);
+	}
+}
+
+World::World()
+{
+	if (!m_wallTexture.loadFromFile("res/textures/world_tilemap.png"))
+		std::cerr << "Failed to load wall texture\n";
+}
 
 bool World::addWall(int x, int y)
 {
@@ -44,10 +96,19 @@ void World::cacheWalls()
 {
 	m_wallSprites.clear();
 	for (sf::Vector2i & w : m_walls) {
-		sf::RectangleShape rect(sf::Vector2f(C::GRID_SIZE,C::GRID_SIZE));
-		rect.setPosition((float)w.x * C::GRID_SIZE, (float)w.y * C::GRID_SIZE);
-		rect.setFillColor(sf::Color(0x07ff07ff));
-		m_wallSprites.push_back(rect);
+		constexpr int textureSize = 16;
+
+		sf::Sprite sprite(m_wallTexture);
+		uint8_t neighbourhood = WallNeighbourhood::Null;
+		if (isWall(w.x, w.y - 1)) neighbourhood |= WallNeighbourhood::Top;
+		if (isWall(w.x + 1, w.y)) neighbourhood |= WallNeighbourhood::Right;
+		if (isWall(w.x, w.y + 1)) neighbourhood |= WallNeighbourhood::Bottom;
+		if (isWall(w.x - 1, w.y)) neighbourhood |= WallNeighbourhood::Left;
+
+		auto texCoord = getTextureCoordFromWallPosition(static_cast<WallNeighbourhood::Value>(neighbourhood));
+		sprite.setTextureRect({static_cast<int>(texCoord.x * textureSize), static_cast<int>(texCoord.y * textureSize), textureSize, textureSize});
+		sprite.setPosition((float)w.x * C::GRID_SIZE, (float)w.y * C::GRID_SIZE);
+		m_wallSprites.push_back(sprite);
 	}
 }
 
@@ -139,9 +200,9 @@ bool World::removeEnemy(int x, int y)
 	return true;
 }
 
-void World::draw(sf::RenderTarget& win)
+void World::draw(sf::RenderTarget& win) const
 {
-	for (sf::RectangleShape & r : m_wallSprites)
+	for (auto & r : m_wallSprites)
 		win.draw(r);
 
 	for (auto entt : m_entities)

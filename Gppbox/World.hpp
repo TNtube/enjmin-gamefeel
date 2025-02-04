@@ -3,7 +3,8 @@
 #include <filesystem>
 #include <vector>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 
 
@@ -18,6 +19,8 @@ public:
 		Wall,
 		Enemy
 	};
+	
+	World();
 
 	bool addWall(int x, int y);
 	void cacheWalls();
@@ -32,7 +35,7 @@ public:
 	Entity* getEnemyAt(float x, float y) const;
 
 	void update(double dt);
-	void draw(sf::RenderTarget& win);
+	void draw(sf::RenderTarget& win) const;
 
 
 	bool loadFile(const std::filesystem::path& filePath);
@@ -43,5 +46,6 @@ private:
 	std::vector<sf::Vector2i>		m_enemies;
 	std::vector<Entity*>			m_entities;
 	std::vector<sf::Vector2i>		m_walls;
-	std::vector<sf::RectangleShape> m_wallSprites;
+	std::vector<sf::Sprite> m_wallSprites;
+	sf::Texture						m_wallTexture;
 };
