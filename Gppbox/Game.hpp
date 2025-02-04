@@ -88,4 +88,6 @@ private:
 
 	bool m_pickerActive = false;
 	bool m_pickerPressed = false;
+
+	bool m_lastShootPressed = false;
 };

@@ -20,6 +20,8 @@ public:
 	void fadeIn();
 	void fadeOut();
 
+	int getPickedWeapon() const { return m_pickedWeapon; }
+
 private:
 	Game* m_game;
 

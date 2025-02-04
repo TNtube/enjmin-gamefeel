@@ -154,6 +154,7 @@ void Game::pollInput(double dt) {
 		if (m_pickerPressed){
 			m_blurAnimCounter = 0.0f; // animation start
 			weaponPicker.fadeOut();
+			player.getController<PlayerController>()->setWeapon(weaponPicker.getPickedWeapon());
 		}
 
 		m_pickerPressed = false;
@@ -166,9 +167,18 @@ void Game::pollInput(double dt) {
 	}
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Joystick::getAxisPosition(0, sf::Joystick::Z) < -50) {
-		player.getController<PlayerController>()->shoot(dt);
-
+		KeyPressType kpt = KeyPressType::Repeated;
+		if (!m_lastShootPressed) kpt = KeyPressType::Pressed;
+		player.getController<PlayerController>()->shoot(dt, kpt);
+		m_lastShootPressed = true;
+	} else {
+		if (m_lastShootPressed)
+		{
+			player.getController<PlayerController>()->shoot(dt, KeyPressType::Released);
+		}
+		m_lastShootPressed = false;
 	}
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) || sf::Joystick::isButtonPressed(0, 0)) {
 		if (!wasPressed) {
 			onSpacePressed();

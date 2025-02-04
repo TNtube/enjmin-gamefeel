@@ -186,6 +186,9 @@
     <ClCompile Include="ui\RoundedRectangleShape.cpp" />
     <ClCompile Include="ui\WeaponFrame.cpp" />
     <ClCompile Include="ui\WeaponPicker.cpp"/>
+    <ClCompile Include="weapon\Rifle.cpp" />
+    <ClCompile Include="weapon\Shotgun.cpp" />
+    <ClCompile Include="weapon\Weapon.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +206,7 @@
     <ClInclude Include="HotReloadShader.hpp" />
     <ClInclude Include="InputBuffer.hpp" />
     <ClInclude Include="Interp.hpp" />
+    <ClInclude Include="KeyPressType.hpp" />
     <ClInclude Include="Lib.hpp" />
     <ClInclude Include="libs\imgui-sfml\imgui-SFML.h" />
     <ClInclude Include="libs\imgui-sfml\imgui-SFML_export.h" />
@@ -216,6 +220,9 @@
     <ClInclude Include="ui\RoundedRectangleShape.hpp" />
     <ClInclude Include="ui\WeaponFrame.hpp" />
     <ClInclude Include="ui\WeaponPicker.hpp" />
+    <ClInclude Include="weapon\Rifle.hpp" />
+    <ClInclude Include="weapon\Shotgun.hpp" />
+    <ClInclude Include="weapon\Weapon.hpp" />
     <ClInclude Include="World.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

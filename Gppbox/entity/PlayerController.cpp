@@ -1,15 +1,21 @@
 ﻿#include "PlayerController.hpp"
 
-#include <iostream>
-
-#include "C.hpp"
 #include "Entity.hpp"
 #include "Game.hpp"
+#include "KeyPressType.hpp"
+#include "weapon/Rifle.hpp"
+#include "weapon/Shotgun.hpp"
 
 PlayerController::PlayerController(Game* game, Entity* entity)
-	: EntityController(game, entity), m_fireThrottler(0.1f) // magic fire rate number
+	: EntityController(game, entity)
 {
-	
+	auto rifle = std::make_unique<Rifle>(game, entity);
+	m_currentWeapon = rifle.get();
+	m_weapons.push_back(std::move(rifle));
+
+	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
+	m_weapons.push_back(std::make_unique<Rifle>(game, entity));
+	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
 }
 
 void PlayerController::update(double dt)
@@ -21,21 +27,14 @@ void PlayerController::update(double dt)
 	}
 
 	m_lastFrameOnGround = m_Entity->onGround;
-	if (m_fireThrottler.shouldExecute(dt))
-		m_canShoot = true;
+
+	for (const auto& weapon : m_weapons)
+	{
+		weapon->update(dt);
+	}
 }
 
-void PlayerController::shoot(double dt)
+void PlayerController::shoot(double dt, KeyPressType pressType) const
 {
-	// dont shoot if time is frozen
-	if (m_canShoot && dt > 0)
-	{
-		m_canShoot = false;
-		sf::Vector2f pos = {m_Entity->xx, m_Entity->yy};
-		sf::Vector2f from = {pos.x + (m_Entity->lastXDir > 0 ? C::GRID_SIZE : 0.f), m_Entity->yy + C::GRID_SIZE * (1.f/4.f)};
-		auto to = from;
-		to.x += m_Entity->lastXDir;
-		m_pGame->bulletHandler.shoot(from, to);
-		m_Entity->offsetDx = -m_Entity->lastXDir * 5;
-	}
+	m_currentWeapon->shoot(dt, pressType);
 }
