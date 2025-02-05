@@ -54,7 +54,7 @@ private:
 	float targetLength = 1200;
 
 
-	float laserShake = 0.0f;
-	// float laserShake = 400.0f;
+	// float laserShake = 0.0f;
+	float laserShake = 400.0f;
 	
 };
