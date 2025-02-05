@@ -27,11 +27,34 @@ public:
 	void shoot(sf::Vector2f from, sf::Vector2f to);
 	void update(double dt);
 	void draw(sf::RenderTarget& win);
+	void im();
+
+	bool laserOn = false;
+	
+	sf::Vector2f laserStart {300, 500};
+	sf::Vector2f laserDir {1, 0};
 
 private:
 	bool isCollidingWall(float x, float y) const;
 	std::vector<Bullet> m_bullets;
 	sf::CircleShape m_bulletShape;
 	Game* m_game;
+
+	float laserLengthDuration = 0.3f;
+	float laserHeightDuration = 0.05f;
+	float laserIdleDuration = 1.0f;
+	float laserEndDuration = 0.3f;
+	float startAnimationTimer = 0;
+	float idleAnimationTimer = 0;
+	float endAnimationTimer = 0;
+
+	float currentHeight = 0;
+	float currentLength = 0;
+	float targetHeight = 10;
+	float targetLength = 1200;
+
+
+	float laserShake = 0.0f;
+	// float laserShake = 400.0f;
 	
 };

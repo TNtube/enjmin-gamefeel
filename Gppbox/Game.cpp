@@ -238,7 +238,7 @@ void Game::update(double dt) {
 		weaponPicker.update(unscaledDt);
 }
 
- void Game::draw(sf::RenderWindow & win) {
+void Game::draw(sf::RenderWindow & win) {
 	if (closing) return;
 
 	sf::RenderTarget* target = &win;
@@ -304,8 +304,9 @@ void Game::onSpacePressed() {
 
 void Game::im()
 {
+	bulletHandler.im();
+	
 	ImGui::DragFloat("Blur factor", &m_blurFactor);
-	ImGui::DragFloat("Blur anim counter", &m_blurAnimCounter);
 	if (!m_editMode && ImGui::Button("Edit Mode"))
 	{
 		m_editMode = true;

@@ -3,6 +3,7 @@
 #include "Entity.hpp"
 #include "Game.hpp"
 #include "KeyPressType.hpp"
+#include "weapon/LaserBeam.h"
 #include "weapon/Rifle.hpp"
 #include "weapon/Shotgun.hpp"
 
@@ -14,7 +15,7 @@ PlayerController::PlayerController(Game* game, Entity* entity)
 	m_weapons.push_back(std::move(rifle));
 
 	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
-	m_weapons.push_back(std::make_unique<Rifle>(game, entity));
+	m_weapons.push_back(std::make_unique<LaserBeam>(game, entity));
 	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
 }
 

@@ -3,12 +3,15 @@
 #include "C.hpp"
 #include "math/MathUtils.hpp"
 #include "Game.hpp"
+#include "imgui.h"
+#include "Interp.hpp"
 
 BulletHandler::BulletHandler(Game* game)
 	: m_game(game)
 {
 	m_bulletShape.setFillColor(sf::Color(0xffffffff));
 	m_bulletShape.setRadius(2.5f);
+	m_bulletShape.setOrigin(2.5f, 2.5f);
 }
 
 void BulletHandler::shoot(sf::Vector2f from, sf::Vector2f to)
@@ -68,6 +71,53 @@ void BulletHandler::update(double dt)
 			}
 		}
 	}
+
+	float dtf = static_cast<float>(dt);
+
+	if (laserOn)
+	{
+		startAnimationTimer += dtf;
+
+		if (startAnimationTimer <= laserLengthDuration)
+		{
+			if (startAnimationTimer > 0)
+			{
+				currentLength = (startAnimationTimer <= laserLengthDuration) ? Interp::lerp(0, targetLength, startAnimationTimer / laserLengthDuration) : targetLength;
+				currentHeight = (startAnimationTimer <= laserHeightDuration) ? Interp::lerp(0, targetHeight, startAnimationTimer / laserHeightDuration) : targetHeight;
+				m_game->camera.addShake(0.1f, laserShake*dtf);
+			}
+		}
+		else
+		{
+			idleAnimationTimer += dtf;
+		}
+
+		if (idleAnimationTimer <= laserIdleDuration)
+		{
+			if (idleAnimationTimer > 0)
+				m_game->camera.addShake(0.1f, laserShake*dtf);
+		}
+		else
+		{
+			endAnimationTimer += dtf;
+		}
+
+		if (endAnimationTimer <= laserEndDuration)
+		{
+			if (endAnimationTimer > 0)
+				currentHeight = (endAnimationTimer <= laserEndDuration) ? Interp::lerp(targetHeight, 0, endAnimationTimer / laserEndDuration) : 0;
+		}
+		else
+		{
+			laserOn = false;
+			startAnimationTimer = 0;
+			idleAnimationTimer = 0;
+			endAnimationTimer = 0;
+			currentHeight = 0;
+			currentLength = 0;
+		}
+	}
+	
 }
 
 void BulletHandler::draw(sf::RenderTarget& win)
@@ -77,6 +127,73 @@ void BulletHandler::draw(sf::RenderTarget& win)
 		m_bulletShape.setPosition(bullet.position);
 		win.draw(m_bulletShape);
 	}
+
+
+	if (!laserOn) return;
+	float length = currentLength * laserDir.x;
+
+	sf::Color red = sf::Color::Blue;
+	red.a = 0;
+
+	Vector2f start = {laserStart.x + currentHeight * 3 * laserDir.x, laserStart.y};
+	// start.x += currentLength * 3 * laserDir.x;
+
+	// laser body
+	sf::Vertex rectangle[] =
+	{
+		sf::Vertex({start.x, start.y - currentHeight}, red),
+		sf::Vertex({start.x + length, start.y - currentHeight}, red),
+		sf::Vertex({start.x + length, start.y}, sf::Color::White),
+		sf::Vertex(start, sf::Color::White),
+		sf::Vertex({start.x + length, start.y }, sf::Color::White),
+		sf::Vertex({start.x, start.y}, sf::Color::White),
+		sf::Vertex({start.x, start.y + currentHeight}, red),
+		sf::Vertex({start.x + length, start.y + currentHeight}, red),
+	};
+
+	// laser head
+	const int points = 50;
+	float radiusX = currentHeight * 4;
+	float radiusY = currentHeight;
+	sf::Vector2f center(start.x, start.y);
+
+	sf::Vertex leftEllipse[points + 2];
+	leftEllipse[0] = sf::Vertex(center, sf::Color::White);
+	leftEllipse[1] = sf::Vertex({center.x, center.y + currentHeight}, red);
+	for (int i = 2; i <= points; ++i) {
+		float angle = Lib::pi() / 2.0f + (i * Lib::pi() / points) * laserDir.x;
+		float x = center.x + radiusX * cos(angle);
+		float y = center.y + radiusY * sin(angle);
+		leftEllipse[i] = sf::Vertex(sf::Vector2f(x, y), red);
+	}
+	
+	leftEllipse[points + 1] = leftEllipse[1];
+	
+	// laser head
+	center.x += length;
+
+	sf::Vertex rightEllipse[points + 2];
+
+	rightEllipse[0] = sf::Vertex(center, sf::Color::White);
+	rightEllipse[1] = sf::Vertex({center.x, center.y + currentHeight}, red);
+	for (int i = 2; i <= points; ++i) {
+		float angle = Lib::pi() / 2.0f - (i * Lib::pi() / points) * laserDir.x;
+		float x = center.x + radiusX * cos(angle);
+		float y = center.y + radiusY * sin(angle);
+		rightEllipse[i] = sf::Vertex(sf::Vector2f(x, y), red);
+	}
+	
+	rightEllipse[points + 1] = rightEllipse[1];
+
+	win.draw(leftEllipse, points + 2, sf::TrianglesFan);
+	win.draw(rightEllipse, points + 2, sf::TrianglesFan);
+	win.draw(rectangle, 8, sf::Quads);
+}
+
+void BulletHandler::im()
+{
+	ImGui::DragFloat("Laser half height", &currentHeight);
+	ImGui::DragFloat2("Laser start", &laserStart.x);
 }
 
 bool BulletHandler::isCollidingWall(float x, float y) const
