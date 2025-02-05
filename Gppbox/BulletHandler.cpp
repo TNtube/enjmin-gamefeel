@@ -43,6 +43,8 @@ void BulletHandler::update(double dt)
 			if (auto enemy =m_game->world.getEnemyAt(bullet.position.x, bullet.position.y))
 			{
 				enemy->pv -= 1;
+				enemy->offsetDx = bullet.direction.x * 30;
+				enemy->offsetDy = -30;
 				bullet.timer = 0;
 				m_game->camera.addShake(0.1f, 5.f);
 
@@ -132,7 +134,7 @@ void BulletHandler::draw(sf::RenderTarget& win)
 	if (!laserOn) return;
 	float length = currentLength * laserDir.x;
 
-	sf::Color red = sf::Color::Blue;
+	sf::Color red = sf::Color::Magenta;
 	red.a = 0;
 
 	Vector2f start = {laserStart.x + currentHeight * 3 * laserDir.x, laserStart.y};
