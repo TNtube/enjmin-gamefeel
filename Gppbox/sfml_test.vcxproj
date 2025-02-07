@@ -218,6 +218,7 @@
     <ClInclude Include="ParticleMan.hpp" />
     <ClInclude Include="sys.hpp" />
     <ClInclude Include="Throttle.h" />
+    <ClInclude Include="Tween.hpp" />
     <ClInclude Include="ui\RoundedRectangleShape.hpp" />
     <ClInclude Include="ui\WeaponFrame.hpp" />
     <ClInclude Include="ui\WeaponPicker.hpp" />

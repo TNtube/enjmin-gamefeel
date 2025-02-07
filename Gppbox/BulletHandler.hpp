@@ -5,6 +5,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include "Tween.hpp"
+
 class Entity;
 class Game;
 
@@ -30,31 +32,28 @@ public:
 	void im();
 
 	bool laserOn = false;
-	
+
 	sf::Vector2f laserStart {300, 500};
 	sf::Vector2f laserDir {1, 0};
 
 private:
+	friend class LaserBeam;
+	void ResetLaserTweens();
 	bool isCollidingWall(float x, float y) const;
 	std::vector<Bullet> m_bullets;
 	sf::CircleShape m_bulletShape;
 	Game* m_game;
 
-	float laserLengthDuration = 0.3f;
-	float laserHeightDuration = 0.05f;
-	float laserIdleDuration = 1.0f;
-	float laserEndDuration = 0.3f;
-	float startAnimationTimer = 0;
-	float idleAnimationTimer = 0;
-	float endAnimationTimer = 0;
+	Tween<float> m_laserLengthTween;
+	Tween<float> m_laserHeightTween;
+	Tween<float> m_laserIdleTween;
+	Tween<float> m_laserEndTween;
 
-	float currentHeight = 0;
-	float currentLength = 0;
-	float targetHeight = 10;
-	float targetLength = 1200;
+	float m_currentHeight = 0;
+	float m_currentLength = 0;
+	float m_targetHeight = 10;
+	float m_targetLength = 1200;
 
-
-	// float laserShake = 0.0f;
-	float laserShake = 400.0f;
+	float m_laserShake = 400.0f;
 	
 };

@@ -20,6 +20,8 @@ void LaserBeam::shoot(double dt, KeyPressType pressType)
 
 		sf::Vector2f from = { pos.x + (m_Entity->lastXDir > 0 ? C::GRID_SIZE : 0.f), m_Entity->yy + C::GRID_SIZE / 2.0f };
 
+		m_Game->bulletHandler.ResetLaserTweens();
+
 		m_Game->bulletHandler.laserStart = from;
 		m_Game->bulletHandler.laserOn = true;
 		m_Game->bulletHandler.laserDir = {m_Entity->lastXDir, 0};

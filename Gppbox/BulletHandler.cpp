@@ -6,12 +6,22 @@
 #include "imgui.h"
 #include "Interp.hpp"
 
+void BulletHandler::ResetLaserTweens()
+{
+	m_laserLengthTween = Tween<float>::From(0.0f).To(m_targetLength).For(0.3f);
+	m_laserHeightTween = Tween<float>::From(0.0f).To(m_targetHeight).For(0.05f);
+	m_laserEndTween = Tween<float>::From(m_targetHeight).To(0.0f).For(0.3f).SetEase(Ease::OutExpo);
+	m_laserIdleTween = Tween<float>::From(0.0f).To(0.0f).For(1.0f);
+}
+
 BulletHandler::BulletHandler(Game* game)
 	: m_game(game)
 {
 	m_bulletShape.setFillColor(sf::Color(0xffffffff));
 	m_bulletShape.setRadius(2.5f);
 	m_bulletShape.setOrigin(2.5f, 2.5f);
+
+	ResetLaserTweens();
 }
 
 void BulletHandler::shoot(sf::Vector2f from, sf::Vector2f to)
@@ -78,45 +88,22 @@ void BulletHandler::update(double dt)
 
 	if (laserOn)
 	{
-		startAnimationTimer += dtf;
-
-		if (startAnimationTimer <= laserLengthDuration)
+		if (!m_laserLengthTween.IsFinished())
 		{
-			if (startAnimationTimer > 0)
-			{
-				currentLength = (startAnimationTimer <= laserLengthDuration) ? Interp::lerp(0, targetLength, startAnimationTimer / laserLengthDuration) : targetLength;
-				currentHeight = (startAnimationTimer <= laserHeightDuration) ? Interp::lerp(0, targetHeight, startAnimationTimer / laserHeightDuration) : targetHeight;
-				m_game->camera.addShake(0.1f, laserShake*dtf);
-			}
-		}
-		else
+			m_currentLength = m_laserLengthTween.Update(dtf);
+			m_currentHeight = m_laserHeightTween.Update(dtf);
+			m_game->camera.addShake(0.1f, m_laserShake*dtf);
+		} else if (!m_laserIdleTween.IsFinished())
 		{
-			idleAnimationTimer += dtf;
-		}
-
-		if (idleAnimationTimer <= laserIdleDuration)
+			m_laserIdleTween.Update(dtf);
+			m_game->camera.addShake(0.1f, m_laserShake*dtf);
+		} else if (!m_laserEndTween.IsFinished())
 		{
-			if (idleAnimationTimer > 0)
-				m_game->camera.addShake(0.1f, laserShake*dtf);
-		}
-		else
+			m_currentHeight = m_laserEndTween.Update(dtf);
+		} else
 		{
-			endAnimationTimer += dtf;
-		}
-
-		if (endAnimationTimer <= laserEndDuration)
-		{
-			if (endAnimationTimer > 0)
-				currentHeight = (endAnimationTimer <= laserEndDuration) ? Interp::lerp(targetHeight, 0, endAnimationTimer / laserEndDuration) : 0;
-		}
-		else
-		{
+			ResetLaserTweens();
 			laserOn = false;
-			startAnimationTimer = 0;
-			idleAnimationTimer = 0;
-			endAnimationTimer = 0;
-			currentHeight = 0;
-			currentLength = 0;
 		}
 	}
 	
@@ -132,36 +119,36 @@ void BulletHandler::draw(sf::RenderTarget& win)
 
 
 	if (!laserOn) return;
-	float length = currentLength * laserDir.x;
+	float length = m_currentLength * laserDir.x;
 
 	sf::Color red = sf::Color::Magenta;
 	red.a = 0;
 
-	Vector2f start = {laserStart.x + currentHeight * 3 * laserDir.x, laserStart.y};
+	Vector2f start = {laserStart.x + m_currentHeight * 3 * laserDir.x, laserStart.y};
 	// start.x += currentLength * 3 * laserDir.x;
 
 	// laser body
 	sf::Vertex rectangle[] =
 	{
-		sf::Vertex({start.x, start.y - currentHeight}, red),
-		sf::Vertex({start.x + length, start.y - currentHeight}, red),
+		sf::Vertex({start.x, start.y - m_currentHeight}, red),
+		sf::Vertex({start.x + length, start.y - m_currentHeight}, red),
 		sf::Vertex({start.x + length, start.y}, sf::Color::White),
 		sf::Vertex(start, sf::Color::White),
 		sf::Vertex({start.x + length, start.y }, sf::Color::White),
 		sf::Vertex({start.x, start.y}, sf::Color::White),
-		sf::Vertex({start.x, start.y + currentHeight}, red),
-		sf::Vertex({start.x + length, start.y + currentHeight}, red),
+		sf::Vertex({start.x, start.y + m_currentHeight}, red),
+		sf::Vertex({start.x + length, start.y + m_currentHeight}, red),
 	};
 
 	// laser head
 	const int points = 50;
-	float radiusX = currentHeight * 4;
-	float radiusY = currentHeight;
+	float radiusX = m_currentHeight * 4;
+	float radiusY = m_currentHeight;
 	sf::Vector2f center(start.x, start.y);
 
 	sf::Vertex leftEllipse[points + 2];
 	leftEllipse[0] = sf::Vertex(center, sf::Color::White);
-	leftEllipse[1] = sf::Vertex({center.x, center.y + currentHeight}, red);
+	leftEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, red);
 	for (int i = 2; i <= points; ++i) {
 		float angle = Lib::pi() / 2.0f + (i * Lib::pi() / points) * laserDir.x;
 		float x = center.x + radiusX * cos(angle);
@@ -177,7 +164,7 @@ void BulletHandler::draw(sf::RenderTarget& win)
 	sf::Vertex rightEllipse[points + 2];
 
 	rightEllipse[0] = sf::Vertex(center, sf::Color::White);
-	rightEllipse[1] = sf::Vertex({center.x, center.y + currentHeight}, red);
+	rightEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, red);
 	for (int i = 2; i <= points; ++i) {
 		float angle = Lib::pi() / 2.0f - (i * Lib::pi() / points) * laserDir.x;
 		float x = center.x + radiusX * cos(angle);
@@ -194,7 +181,7 @@ void BulletHandler::draw(sf::RenderTarget& win)
 
 void BulletHandler::im()
 {
-	ImGui::DragFloat("Laser half height", &currentHeight);
+	ImGui::DragFloat("Laser half height", &m_currentHeight);
 	ImGui::DragFloat2("Laser start", &laserStart.x);
 }
 
