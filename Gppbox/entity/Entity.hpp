@@ -34,7 +34,7 @@ public:
 	float frx = 0.88f;
 	float fry = 1.0f;
 
-	float lastXDir = 1.f;
+	int lastXDir = 1.f;
 
 	bool onGround = false;
 

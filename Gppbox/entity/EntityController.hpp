@@ -9,6 +9,7 @@ public:
 	EntityController(Game* game, Entity* entity) : m_pGame(game), m_Entity(entity) {}
 	virtual void update(double dt);
 	virtual ~EntityController() = default;
+	virtual void im() {}
 private:
 	bool isWallCollision(int cx, int cy, bool isXAxis) const;
 protected:

@@ -38,12 +38,14 @@ public:
 
 private:
 	friend class LaserBeam;
-	void ResetLaserTweens();
+	void ResetLaserTweens(float duration = 1.0f);
 	bool isCollidingWall(float x, float y) const;
+	void GenerateLaserHead(sf::Vector2f position);
 	std::vector<Bullet> m_bullets;
 	sf::CircleShape m_bulletShape;
 	Game* m_game;
 
+	Tween<float> m_laserBallTween;
 	Tween<float> m_laserLengthTween;
 	Tween<float> m_laserHeightTween;
 	Tween<float> m_laserIdleTween;
@@ -53,7 +55,11 @@ private:
 	float m_currentLength = 0;
 	float m_targetHeight = 10;
 	float m_targetLength = 1200;
+	float m_ballSize = 0;
+	float m_laserPower = 0;
 
 	float m_laserShake = 400.0f;
+
+	std::vector<sf::Vertex> m_circlePoints;
 	
 };

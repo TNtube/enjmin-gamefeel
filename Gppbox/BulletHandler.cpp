@@ -6,12 +6,13 @@
 #include "imgui.h"
 #include "Interp.hpp"
 
-void BulletHandler::ResetLaserTweens()
+void BulletHandler::ResetLaserTweens(float duration)
 {
+	m_laserBallTween = Tween<float>::From(m_ballSize).To(0.0f).For(0.1f);
 	m_laserLengthTween = Tween<float>::From(0.0f).To(m_targetLength).For(0.3f);
 	m_laserHeightTween = Tween<float>::From(0.0f).To(m_targetHeight).For(0.05f);
 	m_laserEndTween = Tween<float>::From(m_targetHeight).To(0.0f).For(0.3f).SetEase(Ease::OutExpo);
-	m_laserIdleTween = Tween<float>::From(0.0f).To(0.0f).For(1.0f);
+	m_laserIdleTween = Tween<float>::From(0.0f).To(0.0f).For(duration);
 }
 
 BulletHandler::BulletHandler(Game* game)
@@ -88,7 +89,11 @@ void BulletHandler::update(double dt)
 
 	if (laserOn)
 	{
-		if (!m_laserLengthTween.IsFinished())
+		if (!m_laserBallTween.IsFinished())
+		{
+			m_ballSize = m_laserBallTween.Update(dtf);
+			GenerateLaserHead(laserStart);
+		} else if (!m_laserLengthTween.IsFinished())
 		{
 			m_currentLength = m_laserLengthTween.Update(dtf);
 			m_currentHeight = m_laserHeightTween.Update(dtf);
@@ -105,6 +110,25 @@ void BulletHandler::update(double dt)
 			ResetLaserTweens();
 			laserOn = false;
 		}
+
+
+		if (m_laserBallTween.IsFinished())
+		{
+			for (auto enemy : m_game->world.getEntities())
+			{
+				float x = enemy->xx + C::GRID_SIZE / 2;
+				float y = enemy->yy + C::GRID_SIZE / 2;
+				float minX = std::min(laserStart.x, laserStart.x + m_currentLength * laserDir.x);
+				float maxX = std::max(laserStart.x, laserStart.x + m_currentLength * laserDir.x);
+				if (x >= minX && x <= maxX &&
+					y >= laserStart.y - m_currentHeight && y <= laserStart.y + m_currentHeight)
+				{
+					enemy->pv -= static_cast<float>((m_laserPower + 1.0f) * 4.0f * dt);
+					enemy->offsetDx = laserDir.x * 10;
+					enemy->offsetDy = -10;
+				}
+			}
+		}
 	}
 	
 }
@@ -117,12 +141,16 @@ void BulletHandler::draw(sf::RenderTarget& win)
 		win.draw(m_bulletShape);
 	}
 
+	if (!m_circlePoints.empty())
+	{
+		win.draw(m_circlePoints.data(), m_circlePoints.size(), sf::TriangleFan);
+	}
 
 	if (!laserOn) return;
 	float length = m_currentLength * laserDir.x;
 
-	sf::Color red = sf::Color::Magenta;
-	red.a = 0;
+	sf::Color color = sf::Color::Magenta;
+	color.a = 0;
 
 	Vector2f start = {laserStart.x + m_currentHeight * 3 * laserDir.x, laserStart.y};
 	// start.x += currentLength * 3 * laserDir.x;
@@ -130,14 +158,14 @@ void BulletHandler::draw(sf::RenderTarget& win)
 	// laser body
 	sf::Vertex rectangle[] =
 	{
-		sf::Vertex({start.x, start.y - m_currentHeight}, red),
-		sf::Vertex({start.x + length, start.y - m_currentHeight}, red),
+		sf::Vertex({start.x, start.y - m_currentHeight}, color),
+		sf::Vertex({start.x + length, start.y - m_currentHeight}, color),
 		sf::Vertex({start.x + length, start.y}, sf::Color::White),
 		sf::Vertex(start, sf::Color::White),
 		sf::Vertex({start.x + length, start.y }, sf::Color::White),
 		sf::Vertex({start.x, start.y}, sf::Color::White),
-		sf::Vertex({start.x, start.y + m_currentHeight}, red),
-		sf::Vertex({start.x + length, start.y + m_currentHeight}, red),
+		sf::Vertex({start.x, start.y + m_currentHeight}, color),
+		sf::Vertex({start.x + length, start.y + m_currentHeight}, color),
 	};
 
 	// laser head
@@ -148,12 +176,12 @@ void BulletHandler::draw(sf::RenderTarget& win)
 
 	sf::Vertex leftEllipse[points + 2];
 	leftEllipse[0] = sf::Vertex(center, sf::Color::White);
-	leftEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, red);
+	leftEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, color);
 	for (int i = 2; i <= points; ++i) {
 		float angle = Lib::pi() / 2.0f + (i * Lib::pi() / points) * laserDir.x;
 		float x = center.x + radiusX * cos(angle);
 		float y = center.y + radiusY * sin(angle);
-		leftEllipse[i] = sf::Vertex(sf::Vector2f(x, y), red);
+		leftEllipse[i] = sf::Vertex(sf::Vector2f(x, y), color);
 	}
 	
 	leftEllipse[points + 1] = leftEllipse[1];
@@ -164,12 +192,12 @@ void BulletHandler::draw(sf::RenderTarget& win)
 	sf::Vertex rightEllipse[points + 2];
 
 	rightEllipse[0] = sf::Vertex(center, sf::Color::White);
-	rightEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, red);
+	rightEllipse[1] = sf::Vertex({center.x, center.y + m_currentHeight}, color);
 	for (int i = 2; i <= points; ++i) {
 		float angle = Lib::pi() / 2.0f - (i * Lib::pi() / points) * laserDir.x;
 		float x = center.x + radiusX * cos(angle);
 		float y = center.y + radiusY * sin(angle);
-		rightEllipse[i] = sf::Vertex(sf::Vector2f(x, y), red);
+		rightEllipse[i] = sf::Vertex(sf::Vector2f(x, y), color);
 	}
 	
 	rightEllipse[points + 1] = rightEllipse[1];
@@ -177,6 +205,16 @@ void BulletHandler::draw(sf::RenderTarget& win)
 	win.draw(leftEllipse, points + 2, sf::TrianglesFan);
 	win.draw(rightEllipse, points + 2, sf::TrianglesFan);
 	win.draw(rectangle, 8, sf::Quads);
+
+#ifdef LASER_OUTLINE
+	sf::RectangleShape rect;
+	rect.setPosition(laserStart.x, laserStart.y - m_currentHeight);
+	rect.setSize(sf::Vector2f(m_currentLength * laserDir.x, m_currentHeight * 2));
+	rect.setFillColor(sf::Color::Transparent);
+	rect.setOutlineColor(sf::Color::Red);
+	rect.setOutlineThickness(1.0f);
+	win.draw(rect);
+#endif
 }
 
 void BulletHandler::im()
@@ -194,6 +232,30 @@ bool BulletHandler::isCollidingWall(float x, float y) const
 		return true;
 
 	return false;
+}
+
+void BulletHandler::GenerateLaserHead(sf::Vector2f center)
+{
+	if (m_ballSize <= 0.001f)
+	{
+		m_circlePoints.clear();
+		return;
+	}
+	const int points = 60;
+	sf::Color color = sf::Color::Magenta;
+	color.a = 0;
+
+	m_circlePoints.clear();
+	m_circlePoints.resize(points + 2);
+	m_circlePoints[0] = sf::Vertex(center, sf::Color::White);
+	for (int i = 1; i <= points; ++i) {
+		float angle = (i * 2 * Lib::pi() / points) * laserDir.x;
+		float x = center.x + m_ballSize * cos(angle);
+		float y = center.y + m_ballSize * sin(angle);
+		m_circlePoints[i] = sf::Vertex(sf::Vector2f(x, y), color);
+	}
+	
+	m_circlePoints[points + 1] = m_circlePoints[1];
 }
 
 

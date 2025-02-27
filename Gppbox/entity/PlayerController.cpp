@@ -21,7 +21,23 @@ PlayerController::PlayerController(Game* game, Entity* entity)
 
 void PlayerController::update(double dt)
 {
+	LaserBeam* laser = dynamic_cast<LaserBeam*>(m_currentWeapon);
+	int lastXDir = m_Entity->lastXDir;
+	if (laser && laser->m_pressed)
+	{
+		float sign = m_Entity->dx > 0 ? 1 : -1;
+		// slow down the player when charging the laser
+		m_Entity->dx = std::min(std::abs(m_Entity->dx), 3.f) * sign;
+	}
+	
 	EntityController::update(dt);
+
+	if (laser && laser->m_pressed)
+	{
+		// prevent direction change while charging the laser
+		m_Entity->lastXDir = lastXDir;
+	}
+	
 	if (m_lastFrameOnGround != m_Entity->onGround && m_Entity->onGround)
 	{
 		// on land
@@ -38,4 +54,9 @@ void PlayerController::update(double dt)
 void PlayerController::shoot(double dt, KeyPressType pressType) const
 {
 	m_currentWeapon->shoot(dt, pressType);
+}
+
+void PlayerController::im()
+{
+	m_currentWeapon->im();
 }

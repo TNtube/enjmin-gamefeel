@@ -53,6 +53,11 @@ void Entity::im()
 
 	ImGui::DragFloat("dx", &dx);
 	ImGui::DragFloat("dy", &dy);
+
+	
+	if (ImGui::CollapsingHeader("Controller", ImGuiTreeNodeFlags_DefaultOpen))
+		m_pController->im();
+
 }
 
 void Entity::update(double dt) const

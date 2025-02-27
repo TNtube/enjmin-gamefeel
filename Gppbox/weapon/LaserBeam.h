@@ -7,4 +7,12 @@ public:
 	LaserBeam(Game* game, Entity* entity);
 	void shoot(double dt, KeyPressType pressType) override;
 	void update(double dt) override;
+	void im() override;
+
+private:
+	friend class PlayerController;
+	bool m_shoot = false;
+	bool m_pressed = false;
+	float m_pressedTime = 0;
+	float m_maxTime = 1.5f;
 };

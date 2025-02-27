@@ -34,6 +34,8 @@ public:
 
 	Entity* getEnemyAt(float x, float y) const;
 
+	const std::vector<Entity*>& getEntities() const { return m_entities; }
+
 	void update(double dt);
 	void draw(sf::RenderTarget& win) const;
 
@@ -46,6 +48,6 @@ private:
 	std::vector<sf::Vector2i>		m_enemies;
 	std::vector<Entity*>			m_entities;
 	std::vector<sf::Vector2i>		m_walls;
-	std::vector<sf::Sprite> m_wallSprites;
+	std::vector<sf::Sprite>			m_wallSprites;
 	sf::Texture						m_wallTexture;
 };

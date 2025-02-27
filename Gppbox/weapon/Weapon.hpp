@@ -22,6 +22,7 @@ public:
 	virtual ~Weapon() = default;
 	virtual void shoot(double dt, KeyPressType pressType) = 0;
 	virtual void update(double dt) = 0;
+	virtual void im() {}
 	bool canShoot(KeyPressType pressType) const;
 	float getTimeUntilNextShot() const;
 	float getFireRate() const { return m_fireRate; }

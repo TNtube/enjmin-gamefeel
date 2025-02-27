@@ -15,6 +15,8 @@ public:
 	void shoot(double dt, KeyPressType pressType) const;
 
 	void setWeapon(int index) { m_currentWeapon = m_weapons[index].get(); }
+
+	void im() override;
 private:
 	bool m_lastFrameOnGround = false;
 
