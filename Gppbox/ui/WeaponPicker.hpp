@@ -22,6 +22,9 @@ public:
 
 	int getPickedWeapon() const { return m_pickedWeapon; }
 
+	void setWeaponReloadTime(int index, float time);
+	void setWeaponName(int index, const std::string& name);
+
 private:
 	Game* m_game;
 

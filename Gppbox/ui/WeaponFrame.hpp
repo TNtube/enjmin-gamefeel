@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include "RoundedRectangleShape.hpp"
@@ -20,8 +21,14 @@ public:
 	void resetScale() { m_targetScale = m_baseScale; }
 	void resetPosition() { m_targetPosition = m_basePosition; }
 
+	void setWeaponName(const std::string& name) { m_weaponName = name; }
+	void setReloadTime(float time) { m_reloadTime = time; }
+
 private:
 	RoundedRectangleShape m_shape;
+
+	std::string m_weaponName = "Weapon";
+	float m_reloadTime = 5.0f;
 
 	sf::Vector2f m_baseScale = {0.05f, 0.05f};
 	sf::Vector2f m_targetScale = {0.05f, 0.05f};
@@ -30,4 +37,5 @@ private:
 	sf::Vector2f m_basePosition;
 	sf::Vector2f m_targetPosition;
 	SecondOrderDynamics2f m_positionSod;
+	sf::Font m_font;
 };

@@ -43,8 +43,6 @@ public:
 	sf::RectangleShape				transparentWall;
 	sf::Vector2i					cursorGrid;
 
-	Entity							player;
-
 	InputType						lastInput = InputType::Keyboard;
 
 	// camera data
@@ -55,6 +53,8 @@ public:
 
 	// ui
 	WeaponPicker					weaponPicker;
+
+	Entity							player;
 
 	ParticleMan beforeParts;
 	ParticleMan afterParts;

@@ -10,13 +10,13 @@
 PlayerController::PlayerController(Game* game, Entity* entity)
 	: EntityController(game, entity)
 {
-	auto rifle = std::make_unique<Rifle>(game, entity);
+	auto rifle = std::make_unique<Rifle>(game, entity, 0);
 	m_currentWeapon = rifle.get();
-	m_weapons.push_back(std::move(rifle));
+	m_weapons.emplace_back(std::move(rifle));
 
-	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
-	m_weapons.push_back(std::make_unique<LaserBeam>(game, entity));
-	m_weapons.push_back(std::make_unique<Shotgun>(game, entity));
+	m_weapons.emplace_back(std::make_unique<Shotgun>(game, entity, 1));
+	m_weapons.emplace_back(std::make_unique<LaserBeam>(game, entity, 2));
+	m_weapons.emplace_back(std::make_unique<Shotgun>(game, entity, 3));
 }
 
 void PlayerController::update(double dt)

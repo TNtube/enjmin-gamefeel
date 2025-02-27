@@ -7,9 +7,10 @@
 #include "entity/Entity.hpp"
 #include "Game.hpp"
 
-Rifle::Rifle(Game* game, Entity* entity)
-	:	Weapon(game, entity, 0.25f, true, 5)
+Rifle::Rifle(Game* game, Entity* entity, int idx)
+	:	Weapon(game, entity, 0.25f, true, 5, idx)
 {
+	m_Game->weaponPicker.setWeaponName(m_index, "Rifle");
 }
 
 void Rifle::shoot(double dt, KeyPressType pressType)
@@ -35,5 +36,6 @@ void Rifle::shoot(double dt, KeyPressType pressType)
 
 void Rifle::update(double dt)
 {
+	m_Game->weaponPicker.setWeaponReloadTime(m_index, m_timeUntilNextShot);
 	m_timeUntilNextShot -= dt;
 }

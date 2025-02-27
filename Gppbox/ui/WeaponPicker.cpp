@@ -127,3 +127,13 @@ void WeaponPicker::fadeOut()
 		frame.setPosition(m_center.x, m_center.y);
 	}
 }
+
+void WeaponPicker::setWeaponReloadTime(int index, float time)
+{
+	m_frames[index].setReloadTime(time);
+}
+
+void WeaponPicker::setWeaponName(int index, const std::string& name)
+{
+	m_frames[index].setWeaponName(name);
+}

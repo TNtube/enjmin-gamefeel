@@ -17,8 +17,8 @@ enum class WeaponType
 class Weapon
 {
 public:
-	Weapon(Game* game, Entity* entity, float fireRate, bool isAutomatic, float recoil = 0.0f)
-		: m_Game(game), m_Entity(entity), m_isAutomatic(isAutomatic), m_fireRate(fireRate), m_recoil(recoil) {}
+	Weapon(Game* game, Entity* entity, float fireRate, bool isAutomatic, float recoil = 0.0f, int idx = 0)
+		: m_Game(game), m_Entity(entity), m_isAutomatic(isAutomatic), m_fireRate(fireRate), m_recoil(recoil), m_index(idx) {}
 	virtual ~Weapon() = default;
 	virtual void shoot(double dt, KeyPressType pressType) = 0;
 	virtual void update(double dt) = 0;
@@ -35,4 +35,5 @@ protected:
 	float m_fireRate = 0.0f;
 	float m_timeUntilNextShot = 0.0f;
 	float m_recoil = 0.0f;
+	int m_index = 0;
 };

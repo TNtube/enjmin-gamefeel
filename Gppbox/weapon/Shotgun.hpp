@@ -4,7 +4,7 @@
 class Shotgun : public Weapon
 {
 public:
-	Shotgun(Game* game, Entity* entity);
+	Shotgun(Game* game, Entity* entity, int idx);
 	void shoot(double dt, KeyPressType pressType) override;
 	void update(double dt) override;
 	

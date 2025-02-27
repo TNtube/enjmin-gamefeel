@@ -4,7 +4,7 @@
 class LaserBeam : public Weapon
 {
 public:
-	LaserBeam(Game* game, Entity* entity);
+	LaserBeam(Game* game, Entity* entity, int idx);
 	void shoot(double dt, KeyPressType pressType) override;
 	void update(double dt) override;
 	void im() override;

@@ -16,9 +16,9 @@ static int lastLine = C::RES_Y / C::GRID_SIZE - 1;
 
 Game::Game(sf::RenderWindow * win)
 	:	win(win), bulletHandler(this),
-		player(this, 5, 5, Entity::Type::Player),
 		camera({C::RES_X / 2.f, C::RES_Y / 2.f}, {C::RES_X / 2.5f, C::RES_Y / 2.5f}),
-		weaponPicker(this), m_editMode(false), m_selectedElement(0),
+		weaponPicker(this),
+		player(this, 5, 5, Entity::Type::Player), m_editMode(false), m_selectedElement(0),
 		m_blurShader("res/simple.vert", "res/tex_blur.frag")
 {
 	this->win = win;
@@ -144,7 +144,7 @@ void Game::pollInput(double dt) {
 		m_pickerPressed = true;
 		m_blurActive = true;
 		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0, 0.5f, m_blurAnimCounter / blurAnim) : 0.5f;
-		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim) : 0.0f;
+		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(1, 0, m_blurAnimCounter / slowAnim) : 0.05f;
 
 		if (m_blurAnimCounter > std::max(blurAnim, slowAnim))
 			m_pickerActive = true; // animation done
@@ -160,7 +160,7 @@ void Game::pollInput(double dt) {
 		m_pickerPressed = false;
 		m_pickerActive = false;
 		m_blurFactor = (m_blurAnimCounter <= blurAnim) ? Interp::lerp(0.5f, 0, m_blurAnimCounter / blurAnim) : 0.0f;
-		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(0, 1, m_blurAnimCounter / slowAnim) : 1.0f;
+		timeScale = (m_blurAnimCounter <= slowAnim) ? Interp::lerp(0.05f, 1, m_blurAnimCounter / slowAnim) : 1.0f;
 
 		if (m_blurAnimCounter > std::max(blurAnim, slowAnim))
 			m_blurActive = false; // animation done

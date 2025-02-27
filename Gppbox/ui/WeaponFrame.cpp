@@ -1,4 +1,10 @@
 ﻿#include "WeaponFrame.hpp"
+
+#include <cassert>
+#include <iomanip>
+#include <sstream>
+#include <SFML/Graphics/Text.hpp>
+
 #include "SFML/Graphics/RenderTarget.hpp"
 
 
@@ -12,6 +18,7 @@ WeaponFrame::WeaponFrame(sf::Vector2f position)
 	m_shape.setScale(m_targetScale);
 	m_shape.setOrigin(size / 2.0f);
 	
+	m_font.loadFromFile("res/MAIAN.TTF");
 }
 
 void WeaponFrame::update(double dt)
@@ -26,4 +33,24 @@ void WeaponFrame::update(double dt)
 void WeaponFrame::draw(sf::RenderTarget& target) const
 {
 	target.draw(m_shape);
+	sf::Text text(m_weaponName, m_font, 20.0f * std::max(0.1f, m_shape.getScale().x));
+	text.setStyle(sf::Text::Bold);
+	auto bounds = text.getLocalBounds();
+	text.setOrigin(bounds.width / 2.0f, bounds.height / 2.0f);
+	text.setPosition(m_shape.getPosition() - sf::Vector2f(0, 20));
+	text.setFillColor(sf::Color::Black);
+	target.draw(text);
+
+	if (m_reloadTime >= 0)
+	{
+		// replace to C++20 std::format if possible, this is ass
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(2) << m_reloadTime << "s";
+		text.setString(stream.str());
+		text.setCharacterSize(15.0f * std::max(0.1f, m_shape.getScale().x));
+		bounds = text.getLocalBounds();
+		text.setOrigin(bounds.width / 2.0f, bounds.height / 2.0f);
+		text.setPosition(m_shape.getPosition() + sf::Vector2f(0, 20));
+		target.draw(text);
+	}
 }

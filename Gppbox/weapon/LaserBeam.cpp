@@ -1,14 +1,14 @@
 ﻿#include "LaserBeam.h"
 
 #include "C.hpp"
-#include "Dice.hpp"
 #include "entity/Entity.hpp"
 #include "Game.hpp"
 #include "imgui.h"
 
-LaserBeam::LaserBeam(Game* game, Entity* entity)
-	: Weapon(game, entity, 5.0f, false, 15.0f)
+LaserBeam::LaserBeam(Game* game, Entity* entity, int idx)
+	: Weapon(game, entity, 5.0f, false, 15.0f, idx)
 {
+	m_Game->weaponPicker.setWeaponName(m_index, "Laser");
 }
 
 void LaserBeam::shoot(double dt, KeyPressType pressType)
@@ -32,7 +32,6 @@ void LaserBeam::shoot(double dt, KeyPressType pressType)
 	if (m_shoot && dt > 0)
 	{
 		m_timeUntilNextShot = m_fireRate;
-
 		m_Game->bulletHandler.m_targetHeight = 3.0f + m_pressedTime * 15.0f;
 		m_Game->bulletHandler.m_laserShake = 100.0f + m_pressedTime * 150.0f;
 		m_Game->bulletHandler.ResetLaserTweens(0.5f + m_pressedTime);
@@ -48,7 +47,9 @@ void LaserBeam::shoot(double dt, KeyPressType pressType)
 
 void LaserBeam::update(double dt)
 {
-	m_timeUntilNextShot -= dt;
+	m_Game->weaponPicker.setWeaponReloadTime(m_index, m_timeUntilNextShot);
+	if (!m_Game->bulletHandler.laserOn)
+		m_timeUntilNextShot -= dt;
 	
 	if (m_pressed)
 	{

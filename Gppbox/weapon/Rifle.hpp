@@ -4,7 +4,7 @@
 class Rifle : public Weapon
 {
 public:
-	Rifle(Game* game, Entity* entity);
+	Rifle(Game* game, Entity* entity, int idx);
 	void shoot(double dt, KeyPressType pressType) override;
 	void update(double dt) override;
 };
